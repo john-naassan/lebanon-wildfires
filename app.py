@@ -316,6 +316,7 @@ LIVE_DAYS = 30                               # live mode always shows the 30 day
 # ---------- LIVE MODE: recent fires from NASA FIRMS (near real time) ----------
 from datetime import datetime, timezone, timedelta
 import io
+import urllib.error
 import urllib.request
 from shapely.geometry import shape, Point
 from shapely.prepared import prep
@@ -351,37 +352,60 @@ def fetch_live(days):
         now = (t0 + pd.Timedelta(hours=2, minutes=40)).tz_localize("UTC").to_pydatetime()
     else:
         try:
-            key = st.secrets["FIRMS_MAP_KEY"]
+            key = str(st.secrets["FIRMS_MAP_KEY"]).strip().strip('"').strip("'")
         except Exception:
             key = os.environ.get("FIRMS_MAP_KEY", "")
         if not key:
             return None, "No NASA FIRMS key found. Add FIRMS_MAP_KEY to the app's Secrets."
-        # FIRMS returns at most 10 days per request, so longer windows are fetched in 10-day chunks
+        # FIRMS returns at most 10 days per request: the newest 10 days come from the plain request (no date),
+        # older days (up to `days`) from dated 10-day chunks.
         today = datetime.now(timezone.utc).date()
-        if days <= 10:
-            chunks = [f"{days}"]
-        else:
-            first = today - timedelta(days=days - 1)
-            chunks = [f"{min(10, days - i)}/{first + timedelta(days=i)}" for i in range(0, days, 10)]
-        parts, problems, answered = [], [], 0
-        for src in FIRMS_SOURCES:
-            for ch in chunks:
-                url = f"https://firms.modaps.eosdis.nasa.gov/api/area/csv/{key}/{src}/{LEB_BBOX}/{ch}"
+        chunks = ["10" if days >= 10 else f"{days}"]
+        for back in range(days - 10, 0, -10):                  # e.g. 30 days -> chunks starting 29 and 19 days ago
+            n = min(10, back)
+            chunks.append(f"{n}/{today - timedelta(days=back + 10 - 1) + timedelta(days=10 - n)}")
+
+        def get(url):
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (compatible; lebanon-wildfires-streamlit/1.0)"})
+            try:
+                with urllib.request.urlopen(req, timeout=30) as r:
+                    txt = r.read().decode("utf-8", "replace")
+            except urllib.error.HTTPError as e:                     # keep NASA's own explanation
                 try:
-                    with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "lebanon-wildfires-app"}), timeout=30) as r:
-                        txt = r.read().decode("utf-8", "replace")
-                except Exception as e:
-                    problems.append(f"{src}: {type(e).__name__}")
-                    continue
-                if not txt.lstrip().startswith("latitude"):            # FIRMS answers errors as plain text
-                    problems.append(f"{src}: {txt.strip()[:120].replace(key, '***')}")
+                    body = e.read().decode("utf-8", "replace").strip()[:150]
+                except Exception:
+                    body = ""
+                return None, f"HTTP {e.code} {e.reason}: {body}".replace(key, "***")
+            except Exception as e:
+                return None, f"{type(e).__name__}: {e}"[:150].replace(key, "***")
+            if not txt.lstrip().startswith("latitude"):             # FIRMS answers some errors as plain text
+                return None, txt.strip()[:150].replace(key, "***")
+            return txt, None
+
+        parts, problems, answered, older_failed = [], [], 0, False
+        for src in FIRMS_SOURCES:
+            for i, ch in enumerate(chunks):
+                txt, err = get(f"https://firms.modaps.eosdis.nasa.gov/api/area/csv/{key}/{src}/{LEB_BBOX}/{ch}")
+                if err:
+                    problems.append(f"{src} [{ch}] {err}")
+                    older_failed |= i > 0
                     continue
                 answered += 1
                 x = pd.read_csv(io.StringIO(txt))
                 if len(x):
                     parts.append(x.assign(sensor=src.replace("_NRT", "").replace("_", " ")))
         if answered == 0:
-            return None, "NASA FIRMS did not return any data. " + (" | ".join(dict.fromkeys(problems))[:400] if problems else "")
+            msg = "NASA FIRMS did not return any data. " + " | ".join(dict.fromkeys(problems))[:500]
+            try:                                                         # ask NASA whether the key itself is valid
+                with urllib.request.urlopen(f"https://firms.modaps.eosdis.nasa.gov/mapserver/mapkey_status/?MAP_KEY={key}", timeout=20) as r:
+                    msg += "  ·  Key status: " + r.read().decode("utf-8", "replace").strip()[:200].replace(key, "***")
+            except Exception as e:
+                msg += f"  ·  Key status check failed ({type(e).__name__})"
+            return None, msg
+        if older_failed:
+            st.session_state["live_note"] = "Only part of the 30 days could be loaded from NASA right now: " + problems[-1][:160]
+        else:
+            st.session_state.pop("live_note", None)
         if not parts:                                                   # NASA answered: simply no fires in the window
             return EMPTY_LIVE.copy(), datetime.now(timezone.utc)
         s = pd.concat(parts, ignore_index=True).drop_duplicates(["latitude", "longitude", "acq_date", "acq_time", "sensor"])
@@ -443,6 +467,8 @@ def render_live():
     if gsel:                                                  # respect the governorate filter
         g_of = {ft["properties"]["district"]: ft["properties"]["governorate"] for ft in geo["features"]}
         s = s[s.district.map(g_of).isin(gsel)]
+    if st.session_state.get("live_note"):
+        st.toast(st.session_state["live_note"], icon="⚠️")
     last24 = s[s.age_h <= 24]
     top = s.district.value_counts()
     latest = s.iloc[-1] if len(s) else None
