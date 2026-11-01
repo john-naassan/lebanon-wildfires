@@ -357,13 +357,14 @@ def fetch_live(days):
             key = os.environ.get("FIRMS_MAP_KEY", "")
         if not key:
             return None, "No NASA FIRMS key found. Add FIRMS_MAP_KEY to the app's Secrets."
-        # FIRMS returns at most 10 days per request: the newest 10 days come from the plain request (no date),
-        # older days (up to `days`) from dated 10-day chunks.
+        # FIRMS returns at most 5 days per request: the newest 5 days come from the plain request (no date),
+        # older days (up to `days`) from dated 5-day chunks.
+        CH = 5
         today = datetime.now(timezone.utc).date()
-        chunks = ["10" if days >= 10 else f"{days}"]
-        for back in range(days - 10, 0, -10):                  # e.g. 30 days -> chunks starting 29 and 19 days ago
-            n = min(10, back)
-            chunks.append(f"{n}/{today - timedelta(days=back + 10 - 1) + timedelta(days=10 - n)}")
+        chunks = [f"{min(CH, days)}"]
+        for back in range(days - CH, 0, -CH):                  # 30 days -> chunks starting 29, 24, 19, 14 and 9 days ago
+            n = min(CH, back)
+            chunks.append(f"{n}/{today - timedelta(days=back + CH - 1) + timedelta(days=CH - n)}")
 
         def get(url):
             req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (compatible; lebanon-wildfires-streamlit/1.0)"})
@@ -382,18 +383,20 @@ def fetch_live(days):
                 return None, txt.strip()[:150].replace(key, "***")
             return txt, None
 
+        from concurrent.futures import ThreadPoolExecutor
+        jobs = [(src, i, ch) for src in FIRMS_SOURCES for i, ch in enumerate(chunks)]
+        with ThreadPoolExecutor(max_workers=6) as pool:              # fetch the requests in parallel
+            results = list(pool.map(lambda j: get(f"https://firms.modaps.eosdis.nasa.gov/api/area/csv/{key}/{j[0]}/{LEB_BBOX}/{j[2]}"), jobs))
         parts, problems, answered, older_failed = [], [], 0, False
-        for src in FIRMS_SOURCES:
-            for i, ch in enumerate(chunks):
-                txt, err = get(f"https://firms.modaps.eosdis.nasa.gov/api/area/csv/{key}/{src}/{LEB_BBOX}/{ch}")
-                if err:
-                    problems.append(f"{src} [{ch}] {err}")
-                    older_failed |= i > 0
-                    continue
-                answered += 1
-                x = pd.read_csv(io.StringIO(txt))
-                if len(x):
-                    parts.append(x.assign(sensor=src.replace("_NRT", "").replace("_", " ")))
+        for (src, i, ch), (txt, err) in zip(jobs, results):
+            if err:
+                problems.append(f"{src} [{ch}] {err}")
+                older_failed |= i > 0
+                continue
+            answered += 1
+            x = pd.read_csv(io.StringIO(txt))
+            if len(x):
+                parts.append(x.assign(sensor=src.replace("_NRT", "").replace("_", " ")))
         if answered == 0:
             msg = "NASA FIRMS did not return any data. " + " | ".join(dict.fromkeys(problems))[:500]
             try:                                                         # ask NASA whether the key itself is valid
