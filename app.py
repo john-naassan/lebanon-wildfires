@@ -315,12 +315,17 @@ def hero_figure(yr, gsel, wsel, secs, mode, pick, show_st, no_tiles):
 LIVE_DAYS = 30                               # live mode always shows the 30 days up to the moment the app is opened
 # ---------- LIVE MODE: recent fires from NASA FIRMS (near real time) ----------
 from datetime import datetime, timezone, timedelta
+import io
+import urllib.request
 from shapely.geometry import shape, Point
 from shapely.prepared import prep
 
 LEB_BBOX = "35.05,33.0,36.7,34.75"          # west,south,east,north
 FIRMS_SOURCES = ["VIIRS_SNPP_NRT", "VIIRS_NOAA20_NRT", "VIIRS_NOAA21_NRT"]
-BEIRUT = timezone(timedelta(hours=2))        # Lebanon winter time (UTC+2); summer is UTC+3
+BEIRUT = timezone(timedelta(hours=2))
+EMPTY_LIVE = pd.DataFrame({"latitude": pd.Series(dtype=float), "longitude": pd.Series(dtype=float),
+                           "frp": pd.Series(dtype=float), "when": pd.Series(dtype="datetime64[ns, UTC]"),
+                           "district": pd.Series(dtype=object), "age_h": pd.Series(dtype=float), "sensor": pd.Series(dtype=object)})        # Lebanon winter time (UTC+2); summer is UTC+3
 
 
 @st.cache_resource
@@ -358,19 +363,28 @@ def fetch_live(days):
         else:
             first = today - timedelta(days=days - 1)
             chunks = [f"{min(10, days - i)}/{first + timedelta(days=i)}" for i in range(0, days, 10)]
-        parts = []
+        parts, problems, answered = [], [], 0
         for src in FIRMS_SOURCES:
             for ch in chunks:
                 url = f"https://firms.modaps.eosdis.nasa.gov/api/area/csv/{key}/{src}/{LEB_BBOX}/{ch}"
                 try:
-                    x = pd.read_csv(url)
-                    if "latitude" in x.columns and len(x):
-                        parts.append(x.assign(sensor=src.replace("_NRT", "").replace("_", " ")))
-                except Exception:
-                    pass
-        if not parts:
-            return pd.DataFrame(columns=["latitude", "longitude", "frp", "when", "district"]), datetime.now(timezone.utc)
-        s = pd.concat(parts, ignore_index=True)
+                    with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "lebanon-wildfires-app"}), timeout=30) as r:
+                        txt = r.read().decode("utf-8", "replace")
+                except Exception as e:
+                    problems.append(f"{src}: {type(e).__name__}")
+                    continue
+                if not txt.lstrip().startswith("latitude"):            # FIRMS answers errors as plain text
+                    problems.append(f"{src}: {txt.strip()[:120].replace(key, '***')}")
+                    continue
+                answered += 1
+                x = pd.read_csv(io.StringIO(txt))
+                if len(x):
+                    parts.append(x.assign(sensor=src.replace("_NRT", "").replace("_", " ")))
+        if answered == 0:
+            return None, "NASA FIRMS did not return any data. " + (" | ".join(dict.fromkeys(problems))[:400] if problems else "")
+        if not parts:                                                   # NASA answered: simply no fires in the window
+            return EMPTY_LIVE.copy(), datetime.now(timezone.utc)
+        s = pd.concat(parts, ignore_index=True).drop_duplicates(["latitude", "longitude", "acq_date", "acq_time", "sensor"])
         s["acq_date"] = pd.to_datetime(s["acq_date"])
         now = datetime.now(timezone.utc)
     t = s["acq_time"].astype(int)
@@ -378,6 +392,8 @@ def fetch_live(days):
     s = s[s["when"] >= now - timedelta(days=days)]
     s["district"] = [where_is(a, b) for a, b in zip(s.latitude, s.longitude)]
     s = s[s.district.notna()].copy()                          # keep detections inside Lebanon only
+    if s.empty:
+        return EMPTY_LIVE.copy(), now
     s["age_h"] = (now - s["when"]).dt.total_seconds() / 3600
     return s.sort_values("when"), now
 
@@ -421,6 +437,7 @@ def live_figure(s, no_tiles, days):
 def render_live():
     s, now = fetch_live(LIVE_DAYS)
     if s is None:
+        fetch_live.clear()                                   # don't keep a failed request cached; retry on next click
         st.error(now)
         return
     if gsel:                                                  # respect the governorate filter
