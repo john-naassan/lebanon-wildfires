@@ -435,16 +435,25 @@ def age_bands(days):
 
 
 def live_figure(s, no_tiles, days):
-    # dimmed "night" map for live mode: navy background, dark land, faint district lines, red dashed border
-    layers = [dict(source={"type": "Feature", "geometry": {"type": "Polygon",
-                   "coordinates": [[[30, 30], [40, 30], [40, 37], [30, 37], [30, 30]]]}},
-                   type="fill", color="#0b1624", below="traces"),
-              dict(source=geo, type="fill", color="#1d241d", below="traces"),
-              dict(source=geo, type="line", color="#3d463b", line=dict(width=0.8), below="traces"),
-              dict(source=geo_border, type="line", color="#ff4d4d", line=dict(width=2.5, dash=[2, 1.5]), below="traces")]
+    # night look: near-black base, dimmed Esri satellite, faint roads, clear place names, faint district lines, red border
+    ESRI = "https://server.arcgisonline.com/ArcGIS/rest/services/"
+    base = dict(source={"type": "Feature", "geometry": {"type": "Polygon",
+                "coordinates": [[[25, 25], [45, 25], [45, 40], [25, 40], [25, 25]]]}}, type="fill", color="#03060a", below="traces")
+    if no_tiles:                                             # offline preview: plain dark land instead of imagery
+        tiles = [dict(source=geo, type="fill", color="#1d241d", below="traces")]
+    else:
+        tiles = [dict(sourcetype="raster", below="traces", opacity=0.5, sourceattribution="Imagery © Esri, Maxar, Earthstar Geographics",
+                      source=[ESRI + "World_Imagery/MapServer/tile/{z}/{y}/{x}"]),
+                 dict(sourcetype="raster", below="traces", opacity=0.35,
+                      source=[ESRI + "Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}"]),
+                 dict(sourcetype="raster", below="traces", opacity=0.9,
+                      source=[ESRI + "Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"])]
+    layers = [base] + tiles + [
+        dict(source=geo, type="line", color="rgba(255,255,255,0.28)", line=dict(width=0.8), below="traces"),
+        dict(source=geo_border, type="line", color="#ff4d4d", line=dict(width=2.5, dash=[2, 1.5]), below="traces")]
     a1, a2 = age_bands(days)[:2]
     col = np.where(s.age_h < a1, "#fff3a0", np.where(s.age_h < a2, "#ffb000", "#ff5a1a"))
-    size = 9 + 10 * np.clip(np.log1p(s.frp.fillna(1)) / 4, 0, 1.4)
+    size = 0.72 * (9 + 10 * np.clip(np.log1p(s.frp.fillna(1)) / 4, 0, 1.4))   # ~30% smaller dots
     hover = [f"<b>{dd}</b><br>{w.astimezone(BEIRUT):%a %d %b, %H:%M} Beirut time · {ago(a)}<br>Intensity {f:,.1f} MW · {sn}"
              for dd, w, a, f, sn in zip(s.district, s["when"], s.age_h, s.frp.fillna(0), s.sensor)]
     data = [
