@@ -78,44 +78,59 @@ area = {ft["properties"]["district"]: ft["properties"]["area_sqkm"] for ft in ge
 
 # ---------- page styling (Ember Night) ----------
 st.markdown("""<style>
-.stApp{background:radial-gradient(1200px 520px at 12% -10%,#2a1206 0%,#0E1013 55%);}
-/* force dark even if the theme file is missing or the viewer picked Light */
-.stApp,[data-testid="stAppViewContainer"],[data-testid="stHeader"]{color:#ECE8E1;background-color:#0E1013}
-[data-testid="stHeader"]{background:rgba(14,16,19,.85)}
-.stApp p,.stApp label,.stApp span,.stApp li,.stApp h1,.stApp h2,.stApp h3,.stApp [data-testid="stCaptionContainer"]{color:#ECE8E1}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+html,body,.stApp,.stApp p,.stApp label,.stApp button,.stApp input{font-family:'Inter',system-ui,sans-serif}
+.stApp,[data-testid="stAppViewContainer"]{background:#0E1013;color:#ECE8E1;overflow-x:hidden}
+[data-testid="stHeader"]{display:none}
+.block-container{padding-top:0 !important;max-width:1440px}
+.stApp p,.stApp label,.stApp span,.stApp li,.stApp h2,.stApp h3{color:#ECE8E1}
 .stApp [data-testid="stCaptionContainer"] p{color:#9a948b}
-.stApp [data-baseweb="select"]>div,.stApp [data-baseweb="input"]>div,.stApp [data-testid="stPopover"] button{background:#171A20 !important;border-color:#2A2E36 !important;color:#ECE8E1 !important}
+.stApp [data-baseweb="select"] div,.stApp [data-testid="stPopover"] button{background-color:rgba(23,26,32,.92) !important;border-color:#2A2E36 !important;color:#ECE8E1 !important}
 [data-baseweb="popover"] *,[data-testid="stPopoverBody"]{background-color:#171A20;color:#ECE8E1}
 .stApp [data-testid="stDataFrame"]{filter:invert(.92) hue-rotate(180deg)}
-.stMultiSelect [data-baseweb="select"] div,.stSelectbox [data-baseweb="select"] div{background-color:#171A20 !important;color:#ECE8E1 !important}
 .stSlider [role="slider"]{background-color:#FF6A2B !important}
-.block-container{padding-top:3.6rem;max-width:1500px}
 div[data-testid="stMetric"]{background:#171A20;border:1px solid #2A2E36;border-left:4px solid #FF6A2B;border-radius:14px;padding:14px 18px}
-.stTabs [data-baseweb="tab-list"]{gap:8px}
-.stTabs [data-baseweb="tab"]{background:#171A20;border:1px solid #2A2E36;border-radius:99px;padding:6px 18px;height:auto}
-.stTabs [aria-selected="true"]{background:#FF6A2B;color:#111 !important;border-color:#FF6A2B}
+/* full-bleed hero */
+.st-key-hero{width:100vw !important;max-width:100vw !important;position:relative;left:50%;margin-left:-50vw;margin-top:-2rem}
+.st-key-hero [data-testid="stPlotlyChart"]{border-bottom:1px solid #2A2E36}
+.st-key-hero .updatemenu-button rect{rx:18px;ry:18px}
+.st-key-hero .updatemenu-button text{font-weight:700 !important}
+/* filter chips floating over the top-right of the map */
+.st-key-filters{position:relative;z-index:30;width:min(640px,52vw);margin-left:auto;top:14px;margin-bottom:-74px}
+[data-testid="stMainBlockContainer"]{padding-top:0 !important}
+.st-key-filters [data-testid="stHorizontalBlock"]{gap:10px}
+/* overlay text on the map */
+.hero-ov{position:relative;z-index:5;pointer-events:none;height:680px;margin-top:-696px;padding:56px 0 0 48px;font-family:'Inter',sans-serif}
+.hero-ov .tag{display:inline-block;background:rgba(255,106,43,.15);color:#ffb28c;border:1px solid rgba(255,106,43,.45);border-radius:99px;padding:4px 13px;font-size:13px;letter-spacing:1.5px}
+.hero-ov .h1{font-family:'Inter',sans-serif;font-size:64px;line-height:1.0;margin:16px 0 12px;font-weight:900;color:#F5F2EE !important;letter-spacing:-1.5px}
+.hero-ov .h1 .hot{color:#FF6A2B !important}
+.hero-ov p.sub{font-size:17px;color:#d8cfc6 !important;margin:0;max-width:480px;line-height:1.35}
+.kgrid{position:absolute;left:48px;bottom:30px;display:grid;grid-template-columns:repeat(4,190px);gap:12px}
+.kc{background:rgba(23,26,32,.86);backdrop-filter:blur(6px);border:1px solid #2A2E36;border-left:4px solid #FF6A2B;border-radius:12px;padding:12px 16px}
+.kc .l{font-size:12px;color:#B9B3AA !important}.kc .v{font-size:28px;font-weight:800;color:#fff !important;line-height:1.2}.kc .s{font-size:12px;color:#FF9a6b !important}
+.legend{position:absolute;right:28px;bottom:86px;background:rgba(23,26,32,.88);border:1px solid #2A2E36;border-radius:10px;padding:10px 14px;font-size:12px;width:190px}
+.legend .bar{height:8px;border-radius:4px;background:linear-gradient(90deg,#2840ff,#00c8ff,#00d25a,#ffe000,#ff8c00,#e61414);margin:7px 0 3px}
+.stTabs [data-baseweb="tab-list"]{gap:10px;margin-top:14px}
+.stTabs [data-baseweb="tab"]{border:1px solid #3A3F48 !important;border-radius:99px !important;padding:6px 18px !important;height:auto !important;background:transparent !important}
+.stTabs [data-baseweb="tab"][aria-selected="true"]{background:#FF6A2B !important;border-color:#FF6A2B !important}
+.stTabs [data-baseweb="tab"][aria-selected="true"] p{color:#111 !important;font-weight:700}
 .stTabs [data-baseweb="tab-highlight"],.stTabs [data-baseweb="tab-border"]{display:none}
-.hero-ov{position:relative;z-index:5;pointer-events:none;height:700px;margin-top:-716px;padding:34px 0 0 34px}
-.hero-ov .tag{display:inline-block;background:rgba(255,106,43,.15);color:#ffb28c;border:1px solid rgba(255,106,43,.45);border-radius:99px;padding:3px 12px;font-size:12px;letter-spacing:1.5px}
-.hero-ov h1{font-size:56px;line-height:1.02;margin:12px 0 8px;font-weight:900;color:#fff;padding:0}
-.hero-ov h1 span{color:#FF6A2B}
-.hero-ov p.sub{font-size:16px;color:#d8cfc6;margin:0;max-width:430px}
-.kgrid{position:absolute;left:34px;bottom:26px;display:grid;grid-template-columns:205px 205px;gap:10px}
-.kc{background:rgba(23,26,32,.85);backdrop-filter:blur(6px);border:1px solid #2A2E36;border-left:4px solid #FF6A2B;border-radius:12px;padding:10px 14px}
-.kc .l{font-size:12px;color:#B9B3AA}.kc .v{font-size:26px;font-weight:800;color:#fff;line-height:1.15}.kc .s{font-size:12px;color:#FF9a6b}
 </style>""", unsafe_allow_html=True)
 
-# ---------- filters (slim row above the hero) ----------
-c1, c2, c3 = st.columns([1.2, 1.2, 0.6])
-yr = c1.slider("Years", 2012, 2025, (2012, 2025))
+# ---------- filters: slim chips floating over the map ----------
 govs = sorted(g for g in fires.governorate.dropna().unique() if g != "Beirut")
-gsel = c2.multiselect("Governorates", govs, default=[], placeholder="All governorates")
-with c3.popover("⚙ Map options", use_container_width=True):
-    mode = st.radio("Map shows", ["Animation 2012 → 2025", "One whole year"], key="yy_mode")
-    pick = st.selectbox("Year", list(range(yr[1], yr[0] - 1, -1)), key="yy_year") if mode.startswith("One") else None
-    secs = st.slider("Seconds per year", 6, 12, 8, key="yy_secs") if not mode.startswith("One") else 8
-    wvar = st.radio("Weather at the stations", ["Temperature vs normal", "Rainfall vs normal"], key="yy_w")
-    show_st2 = st.toggle("Show fire stations", value=True, key="st_sat")
+with st.container(key="filters"):
+    c1, c2, c3 = st.columns([1, 1.25, 1])
+    _y = st.session_state.get("years", (2012, 2025))
+    with c1.popover(f"📅  {_y[0]} – {_y[1]}", use_container_width=True):
+        yr = st.slider("Years", 2012, 2025, (2012, 2025), key="years")
+    gsel = c2.multiselect("Governorates", govs, default=[], placeholder="All governorates", label_visibility="collapsed")
+    with c3.popover("⚙  Map options", use_container_width=True):
+        mode = st.radio("Map shows", ["Animation 2012 → 2025", "One whole year"], key="yy_mode")
+        pick = st.selectbox("Year", list(range(yr[1], yr[0] - 1, -1)), key="yy_year") if mode.startswith("One") else None
+        secs = st.slider("Seconds per year", 6, 12, 8, key="yy_secs") if not mode.startswith("One") else 8
+        wvar = st.radio("Weather at the 5 stations", ["Off", "Temperature vs normal", "Rainfall vs normal"], key="yy_w")
+        show_st2 = st.toggle("Show fire stations", value=False, key="st_sat")
 
 d = fires[fires.year.between(*yr) & fires.governorate.isin(gsel or govs) & ~fires.urban_industrial]
 if d.empty:
@@ -136,7 +151,8 @@ LABEL_POS = {"Akkar": "middle right", "Batroun": "middle left", "Metn": "top lef
 
 
 @st.cache_data(show_spinner="Building the map animation…", max_entries=8)
-def hero_figure(yr, gsel, is_temp, secs, mode, pick, show_st, no_tiles):
+def hero_figure(yr, gsel, wsel, secs, mode, pick, show_st, no_tiles):
+    is_temp, w_on = wsel.startswith("Temp"), wsel != "Off"
     dd = fires[fires.year.between(*yr) & fires.governorate.isin(list(gsel) or govs) & ~fires.urban_industrial].copy()
     DIV = [[0, "#1c5cab"], [0.25, "#6da7ec"], [0.5, "#d9d8d2"], [0.75, "#ec835a"], [1, "#d03b3b"]]
     if not is_temp:
@@ -180,9 +196,9 @@ def hero_figure(yr, gsel, is_temp, secs, mode, pick, show_st, no_tiles):
                      marker=dict(size=5, color="#ffe066", opacity=0.9),
                      customdata=fy[["district", "acq_date"]].astype(str).values.tolist(),
                      hovertemplate="Fire in %{customdata[0]}<br>%{customdata[1]}<extra></extra>")] + \
-               station_traces(sy, acol, float(wy[acol].abs().max()), "%")
+               (station_traces(sy, acol, float(wy[acol].abs().max()), "%") if w_on else [])
         tm, rm = sy.temp_anom.mean(), sy.rain_anom.mean()
-        title = (f"<span style='font-size:40px'><b>{pick}</b></span><br>{len(fy):,} fires · "
+        title = (f"<span style='font-size:34px'><b>{pick}</b></span><br>{len(fy):,} fires · "
                  f"{'hotter' if tm > 0 else 'cooler'} than normal ({tm:+.1f}°C) · rain {rm:+.0f}% vs normal")
     else:
         # weather by month
@@ -224,14 +240,14 @@ def hero_figure(yr, gsel, is_temp, secs, mode, pick, show_st, no_tiles):
             tm = sy.temp_anom.mean()
             sub = (f"{int(cnt.get(T, 0)):,} fires this month · {len(last12):,} in the last 12 months · "
                    f"{'hotter' if tm > 0 else 'cooler'} than a normal {MONTH_NAMES[m]} ({tm:+.1f}°C)")
-            return heat(last12, zmax), station_traces(sy, acol, lim, "mm"), sub
+            return heat(last12, zmax), (station_traces(sy, acol, lim, "mm") if w_on else []), sub
 
-        n_tr = 2 + 2 + len(LABEL_POS)
+        n_tr = 2 + ((2 + len(LABEL_POS)) if w_on else 0)
         prevT, sub, steps = None, "", []
         for k, D in enumerate(range(0, n_days + 1, STEP)):
             date = origin + pd.Timedelta(days=D)
             T = date.year * 12 + date.month - 1
-            ttl_head = f"<span style='font-size:40px'><b>{MONTH_NAMES[date.month - 1]} {date.year}</b></span><br>"
+            ttl_head = f"<span style='font-size:34px'><b>{MONTH_NAMES[date.month - 1]} {date.year}</b></span><br>"
             if T != prevT:
                 h, stn, sub = month_parts(T)
                 fr = dict(name=str(k), data=[h, dots(D)] + stn, traces=list(range(n_tr)),
@@ -243,19 +259,21 @@ def hero_figure(yr, gsel, is_temp, secs, mode, pick, show_st, no_tiles):
             else:
                 fr = dict(name=str(k), data=[dots(D)], traces=[1], layout=dict(title=dict(text=ttl_head + sub)))
             frames.append(fr)
-        data = frames[0]["data"]
-        title = frames[0]["layout"]["title"]["text"]
+        # before Play: the whole period at a glance (all fires as one heat glow); Play then runs week by week
+        data = [heat(dd, max(3.0, 0.004 * len(dd))), dict(type="scattermap", lat=[], lon=[], mode="markers")] + frames[0]["data"][2:]
+        title = (f"<span style='font-size:34px'><b>{yr[0]}–{yr[1]}</b></span><br>{len(dd):,} fires · press Play to watch them "
+                 "spread week by week")
         ms = int(secs * 1000 * STEP / 365)
-        menus = [dict(type="buttons", direction="left", x=0.022, y=0.585, xanchor="left", yanchor="top",
-                      pad=dict(r=6, t=0), showactive=False, bgcolor="#FF6A2B", bordercolor="#FF6A2B",
-                      font=dict(color="#111111", size=14),
+        menus = [dict(type="buttons", direction="left", x=0.031, y=0.49, xanchor="left", yanchor="top",
+                      pad=dict(r=10, t=0, l=0), showactive=False, bgcolor="#FF6A2B", bordercolor="#FF6A2B",
+                      font=dict(color="#111111", size=15, family="Inter, sans-serif"),
                       buttons=[dict(label=f"▶  Play {yr[0]} → {yr[1]}", method="animate",
                                     args=[None, dict(frame=dict(duration=ms, redraw=True),
                                                      transition=dict(duration=0), fromcurrent=True)]),
-                               dict(label="❚❚", method="animate",
+                               dict(label="❚❚  Pause", method="animate",
                                     args=[[None], dict(frame=dict(duration=0, redraw=False),
                                                        mode="immediate", transition=dict(duration=0))])])]
-        sliders = [dict(active=0, x=0.42, len=0.56, y=0.03, yanchor="bottom", pad=dict(t=0, b=0),
+        sliders = [dict(active=0, x=0.645, len=0.335, y=0.025, yanchor="bottom", pad=dict(t=0, b=0),
                         currentvalue=dict(visible=False), ticklen=3, minorticklen=0, bgcolor="#2A2E36",
                         activebgcolor="#FF6A2B", bordercolor="#3A3F48", font=dict(color="#C9C4BC", size=11),
                         tickcolor="#5c5852", steps=steps)]
@@ -273,39 +291,42 @@ def hero_figure(yr, gsel, is_temp, secs, mode, pick, show_st, no_tiles):
         dict(source=geo_border, type="line", color="#ff4d4d", line=dict(width=2.5, dash=[2, 1.5]), below="traces")
     ] + (station_layers(0.045) if show_st else [])
     layout = dict(
-        height=700, margin=dict(l=0, r=0, t=0, b=0), paper_bgcolor="#0E1013", showlegend=False,
+        height=680, margin=dict(l=0, r=0, t=0, b=0), paper_bgcolor="#0E1013", showlegend=False,
         font=dict(family=FONT, color="#ECE8E1"),
-        title=dict(text=title, x=0.022, xanchor="left", y=0.47, yanchor="top", yref="paper",
+        title=dict(text=title, x=0.031, xanchor="left", y=0.395, yanchor="top", yref="paper",
                    font=dict(size=15, color="#ECE8E1")),
         hoverlabel=dict(bgcolor="#0E1013", font_color="#ECE8E1"),
         updatemenus=menus, sliders=sliders,
-        images=[dict(source=GRAD, xref='paper', yref='paper', x=0, y=1, sizex=0.62, sizey=1, sizing='stretch', layer='above', xanchor='left', yanchor='top')],
-        map=dict(style="white-bg", center={"lat": 33.82, "lon": 34.75}, zoom=7.35, layers=layers))
+        images=[dict(source=GRAD, xref='paper', yref='paper', x=0, y=1, sizex=0.5, sizey=1, sizing='stretch', layer='above', xanchor='left', yanchor='top')],
+        map=dict(style="white-bg", center={"lat": 33.86, "lon": 35.25}, zoom=7.7, layers=layers))
     return dict(data=data, layout=layout, frames=frames)
 
 
-fig_hero = hero_figure(yr, tuple(gsel), wvar.startswith("Temp"), secs, mode, pick, show_st2,
-                       bool(os.environ.get("NO_TILES")))
-st.plotly_chart(fig_hero, width="stretch", config={"displayModeBar": False, "scrollZoom": True}, key="hero")
-
+fig_hero = hero_figure(yr, tuple(gsel), wvar, secs, mode, pick, show_st2, bool(os.environ.get("NO_TILES")))
 avg = per_year.mean()
-st.markdown(f"""<div class="hero-ov">
+_v = per_year.reindex(range(yr[0], yr[1] + 1), fill_value=0).values
+_pts = " ".join(f"{4 + i * 112 / max(1, len(_v) - 1):.0f},{26 - 22 * v / max(1, _v.max()):.0f}" for i, v in enumerate(_v))
+with st.container(key="hero"):
+    st.plotly_chart(fig_hero, width="stretch", config={"displayModeBar": False, "scrollZoom": True}, key="hero_map")
+    st.markdown(f"""<div class="hero-ov">
 <div class="tag">NASA SATELLITE DATA · {yr[0]}–{yr[1]}</div>
-<h1>Lebanon Is<br><span>Burning</span></h1>
+<div class="h1">Lebanon Is<br><span class="hot">Burning</span></div>
 <p class="sub">{len(d):,} wildfires detected from space. Where they strike, when, and what they cost our forests.</p>
 <div class="kgrid">
- <div class="kc"><div class="l">Fires detected</div><div class="v">{len(d):,}</div><div class="s">{len(per_year)} years · ~{avg:,.0f} a year</div></div>
- <div class="kc"><div class="l">Worst year</div><div class="v">{per_year.idxmax()}</div><div class="s">{per_year.max():,} fires · {per_year.max() / avg:.1f}× the average</div></div>
+ <div class="kc"><div class="l">Fires detected</div><div class="v">{len(d):,}</div><svg width="120" height="28"><polyline points="{_pts}" fill="none" stroke="#FF6A2B" stroke-width="2"/></svg></div>
+ <div class="kc"><div class="l">Worst year</div><div class="v">{per_year.idxmax()}</div><div class="s">{per_year.max():,} fires · about {per_year.max() / avg:.0f}× the average</div></div>
  <div class="kc"><div class="l">Most-burned district</div><div class="v">{by_dist.index[0]}</div><div class="s">{by_dist.iloc[0]:,} fires</div></div>
- <div class="kc"><div class="l">Forest lost to fires</div><div class="v">{fl.loss_from_fires_ha.sum():,.0f} ha</div><div class="s">{100 * fl.loss_from_fires_ha.sum() / fl.tree_cover_loss_ha.sum():.0f}% of all tree loss (national)</div></div>
-</div></div>""", unsafe_allow_html=True)
+ <div class="kc"><div class="l">Forest lost to fires</div><div class="v">{fl.loss_from_fires_ha.sum():,.0f} ha</div><div class="s">{100 * fl.loss_from_fires_ha.sum() / fl.tree_cover_loss_ha.sum():.0f}% of tree loss</div></div>
+</div>
+<div class="legend">Fire density<div class="bar"></div><div style="display:flex;justify-content:space-between"><span>Few</span><span>Many</span></div></div>
+</div>""", unsafe_allow_html=True)
 if mode.startswith("One"):
     st.caption(f"Every fire detected in {pick} is a yellow dot; the glow shows where they cluster. Circles are the 5 weather stations "
                "(red = hotter/drier than normal, blue = cooler/wetter). Satellite imagery: Esri.")
 else:
     st.caption("Press Play: the map moves one week at a time. Each fire flares up bright yellow when detected, then cools to orange and fades "
-               "over six weeks, so fires flow rather than jump. The glow = all fires in the last 12 months. Circles are the 5 weather stations "
-               "(red = hotter/drier than normal for the month, blue = cooler/wetter). Satellite imagery: Esri.")
+               "over six weeks, so fires flow rather than jump. The glow = all fires in the last 12 months. Turn on the 5 weather stations "
+               "in ⚙ Map options (red = hotter/drier than normal for the month, blue = cooler/wetter). Satellite imagery: Esri.")
 
 tab_where, tab_when, tab_why, tab_cost, tab_data = st.tabs(["📍 Where", "📅 When", "🌡️ Why", "🌲 The cost", "📄 Data"])
 
