@@ -1,0 +1,651 @@
+district,governorate,year,loss_ha
+Akkar,Akkar,2001,2.4375
+Akkar,Akkar,2002,0.1875
+Akkar,Akkar,2003,20.4375
+Akkar,Akkar,2004,13.3125
+Akkar,Akkar,2005,30.4375
+Akkar,Akkar,2006,13.625
+Akkar,Akkar,2007,84.125
+Akkar,Akkar,2008,3.625
+Akkar,Akkar,2009,0.5
+Akkar,Akkar,2010,9.625
+Akkar,Akkar,2011,3.5625
+Akkar,Akkar,2012,12.5
+Akkar,Akkar,2013,43.4375
+Akkar,Akkar,2014,21.3125
+Akkar,Akkar,2015,11.8125
+Akkar,Akkar,2016,13.125
+Akkar,Akkar,2017,41.125
+Akkar,Akkar,2018,31.375
+Akkar,Akkar,2019,38.9375
+Akkar,Akkar,2020,24.375
+Akkar,Akkar,2021,525.3125
+Akkar,Akkar,2022,298.0
+Akkar,Akkar,2023,99.125
+Akkar,Akkar,2024,50.375
+Akkar,Akkar,2025,16.9375
+Aley,Mount Lebanon,2001,0.0625
+Aley,Mount Lebanon,2002,0.0625
+Aley,Mount Lebanon,2003,0.0625
+Aley,Mount Lebanon,2004,2.3125
+Aley,Mount Lebanon,2005,0.8125
+Aley,Mount Lebanon,2006,6.4375
+Aley,Mount Lebanon,2007,0.6875
+Aley,Mount Lebanon,2008,6.0625
+Aley,Mount Lebanon,2009,2.375
+Aley,Mount Lebanon,2010,0.5625
+Aley,Mount Lebanon,2011,2.25
+Aley,Mount Lebanon,2012,4.5
+Aley,Mount Lebanon,2013,2.0625
+Aley,Mount Lebanon,2014,1.5625
+Aley,Mount Lebanon,2015,0.5
+Aley,Mount Lebanon,2016,15.5
+Aley,Mount Lebanon,2017,4.8125
+Aley,Mount Lebanon,2018,31.4375
+Aley,Mount Lebanon,2019,16.3125
+Aley,Mount Lebanon,2020,72.875
+Aley,Mount Lebanon,2021,4.375
+Aley,Mount Lebanon,2022,4.875
+Aley,Mount Lebanon,2023,1.4375
+Aley,Mount Lebanon,2024,5.5
+Aley,Mount Lebanon,2025,13.625
+Baabda,Mount Lebanon,2001,0.5625
+Baabda,Mount Lebanon,2002,0.25
+Baabda,Mount Lebanon,2003,0.875
+Baabda,Mount Lebanon,2004,0.375
+Baabda,Mount Lebanon,2005,1.0
+Baabda,Mount Lebanon,2006,1.875
+Baabda,Mount Lebanon,2007,5.1875
+Baabda,Mount Lebanon,2008,3.0
+Baabda,Mount Lebanon,2009,1.75
+Baabda,Mount Lebanon,2010,0.3125
+Baabda,Mount Lebanon,2011,1.1875
+Baabda,Mount Lebanon,2012,0.875
+Baabda,Mount Lebanon,2013,0.3125
+Baabda,Mount Lebanon,2014,2.625
+Baabda,Mount Lebanon,2015,0.25
+Baabda,Mount Lebanon,2016,0.9375
+Baabda,Mount Lebanon,2017,16.4375
+Baabda,Mount Lebanon,2018,0.625
+Baabda,Mount Lebanon,2019,9.0625
+Baabda,Mount Lebanon,2020,10.1875
+Baabda,Mount Lebanon,2021,20.6875
+Baabda,Mount Lebanon,2022,2.25
+Baabda,Mount Lebanon,2023,3.125
+Baabda,Mount Lebanon,2024,5.9375
+Baabda,Mount Lebanon,2025,4.875
+Baalbek,Baalbek-El Hermel,2001,0.0
+Baalbek,Baalbek-El Hermel,2002,0.0
+Baalbek,Baalbek-El Hermel,2003,0.0
+Baalbek,Baalbek-El Hermel,2004,0.0
+Baalbek,Baalbek-El Hermel,2005,0.0
+Baalbek,Baalbek-El Hermel,2006,0.0
+Baalbek,Baalbek-El Hermel,2007,0.0
+Baalbek,Baalbek-El Hermel,2008,0.0
+Baalbek,Baalbek-El Hermel,2009,0.0
+Baalbek,Baalbek-El Hermel,2010,0.0
+Baalbek,Baalbek-El Hermel,2011,0.0
+Baalbek,Baalbek-El Hermel,2012,0.0
+Baalbek,Baalbek-El Hermel,2013,0.0
+Baalbek,Baalbek-El Hermel,2014,0.0
+Baalbek,Baalbek-El Hermel,2015,0.0
+Baalbek,Baalbek-El Hermel,2016,0.0625
+Baalbek,Baalbek-El Hermel,2017,0.0
+Baalbek,Baalbek-El Hermel,2018,0.0
+Baalbek,Baalbek-El Hermel,2019,0.0
+Baalbek,Baalbek-El Hermel,2020,0.0
+Baalbek,Baalbek-El Hermel,2021,0.0
+Baalbek,Baalbek-El Hermel,2022,0.0
+Baalbek,Baalbek-El Hermel,2023,0.0
+Baalbek,Baalbek-El Hermel,2024,0.25
+Baalbek,Baalbek-El Hermel,2025,0.0
+Bcharre,North,2001,0.3125
+Bcharre,North,2002,0.0
+Bcharre,North,2003,0.25
+Bcharre,North,2004,0.5
+Bcharre,North,2005,0.125
+Bcharre,North,2006,0.0
+Bcharre,North,2007,0.0
+Bcharre,North,2008,0.1875
+Bcharre,North,2009,0.375
+Bcharre,North,2010,0.0625
+Bcharre,North,2011,0.0625
+Bcharre,North,2012,0.0625
+Bcharre,North,2013,0.0625
+Bcharre,North,2014,0.0625
+Bcharre,North,2015,0.0
+Bcharre,North,2016,0.3125
+Bcharre,North,2017,0.4375
+Bcharre,North,2018,0.5
+Bcharre,North,2019,1.0
+Bcharre,North,2020,0.5
+Bcharre,North,2021,0.375
+Bcharre,North,2022,0.0
+Bcharre,North,2023,1.5
+Bcharre,North,2024,1.3125
+Bcharre,North,2025,0.6875
+Beirut,Beirut,2001,0.0
+Beirut,Beirut,2002,0.0
+Beirut,Beirut,2003,0.0
+Beirut,Beirut,2004,0.0
+Beirut,Beirut,2005,0.0
+Beirut,Beirut,2006,0.0
+Beirut,Beirut,2007,0.125
+Beirut,Beirut,2008,0.0
+Beirut,Beirut,2009,0.0
+Beirut,Beirut,2010,0.0
+Beirut,Beirut,2011,0.0
+Beirut,Beirut,2012,0.0
+Beirut,Beirut,2013,0.0
+Beirut,Beirut,2014,0.0
+Beirut,Beirut,2015,0.0
+Beirut,Beirut,2016,0.0
+Beirut,Beirut,2017,0.0
+Beirut,Beirut,2018,0.0
+Beirut,Beirut,2019,0.0
+Beirut,Beirut,2020,0.0
+Beirut,Beirut,2021,0.0
+Beirut,Beirut,2022,0.0
+Beirut,Beirut,2023,0.0
+Beirut,Beirut,2024,0.0
+Beirut,Beirut,2025,0.0
+Bent Jbeil,El Nabatieh,2001,0.0
+Bent Jbeil,El Nabatieh,2002,0.0
+Bent Jbeil,El Nabatieh,2003,0.125
+Bent Jbeil,El Nabatieh,2004,0.125
+Bent Jbeil,El Nabatieh,2005,0.0625
+Bent Jbeil,El Nabatieh,2006,1.0625
+Bent Jbeil,El Nabatieh,2007,3.875
+Bent Jbeil,El Nabatieh,2008,2.375
+Bent Jbeil,El Nabatieh,2009,0.3125
+Bent Jbeil,El Nabatieh,2010,0.0
+Bent Jbeil,El Nabatieh,2011,0.25
+Bent Jbeil,El Nabatieh,2012,0.0625
+Bent Jbeil,El Nabatieh,2013,0.0625
+Bent Jbeil,El Nabatieh,2014,0.125
+Bent Jbeil,El Nabatieh,2015,0.0
+Bent Jbeil,El Nabatieh,2016,0.3125
+Bent Jbeil,El Nabatieh,2017,0.75
+Bent Jbeil,El Nabatieh,2018,0.0
+Bent Jbeil,El Nabatieh,2019,0.0
+Bent Jbeil,El Nabatieh,2020,0.0
+Bent Jbeil,El Nabatieh,2021,0.1875
+Bent Jbeil,El Nabatieh,2022,6.8125
+Bent Jbeil,El Nabatieh,2023,0.0
+Bent Jbeil,El Nabatieh,2024,10.875
+Bent Jbeil,El Nabatieh,2025,8.8125
+Chouf,Mount Lebanon,2001,0.125
+Chouf,Mount Lebanon,2002,0.0
+Chouf,Mount Lebanon,2003,2.0
+Chouf,Mount Lebanon,2004,5.0625
+Chouf,Mount Lebanon,2005,6.25
+Chouf,Mount Lebanon,2006,2.5
+Chouf,Mount Lebanon,2007,3.5625
+Chouf,Mount Lebanon,2008,72.625
+Chouf,Mount Lebanon,2009,24.8125
+Chouf,Mount Lebanon,2010,0.125
+Chouf,Mount Lebanon,2011,0.9375
+Chouf,Mount Lebanon,2012,0.125
+Chouf,Mount Lebanon,2013,0.875
+Chouf,Mount Lebanon,2014,1.875
+Chouf,Mount Lebanon,2015,5.375
+Chouf,Mount Lebanon,2016,6.5625
+Chouf,Mount Lebanon,2017,10.625
+Chouf,Mount Lebanon,2018,14.125
+Chouf,Mount Lebanon,2019,9.625
+Chouf,Mount Lebanon,2020,121.1875
+Chouf,Mount Lebanon,2021,23.6875
+Chouf,Mount Lebanon,2022,26.0625
+Chouf,Mount Lebanon,2023,18.5625
+Chouf,Mount Lebanon,2024,5.25
+Chouf,Mount Lebanon,2025,11.0625
+El Batroun,North,2001,1.6875
+El Batroun,North,2002,1.375
+El Batroun,North,2003,0.0625
+El Batroun,North,2004,1.5625
+El Batroun,North,2005,2.5
+El Batroun,North,2006,0.875
+El Batroun,North,2007,9.75
+El Batroun,North,2008,5.4375
+El Batroun,North,2009,1.125
+El Batroun,North,2010,4.6875
+El Batroun,North,2011,0.3125
+El Batroun,North,2012,0.8125
+El Batroun,North,2013,1.0
+El Batroun,North,2014,2.3125
+El Batroun,North,2015,1.6875
+El Batroun,North,2016,3.3125
+El Batroun,North,2017,6.0625
+El Batroun,North,2018,5.875
+El Batroun,North,2019,6.9375
+El Batroun,North,2020,6.4375
+El Batroun,North,2021,7.5
+El Batroun,North,2022,5.3125
+El Batroun,North,2023,21.0
+El Batroun,North,2024,13.4375
+El Batroun,North,2025,0.9375
+El Hermel,Baalbek-El Hermel,2001,1.75
+El Hermel,Baalbek-El Hermel,2002,0.0
+El Hermel,Baalbek-El Hermel,2003,0.0
+El Hermel,Baalbek-El Hermel,2004,0.0
+El Hermel,Baalbek-El Hermel,2005,0.8125
+El Hermel,Baalbek-El Hermel,2006,0.0
+El Hermel,Baalbek-El Hermel,2007,0.3125
+El Hermel,Baalbek-El Hermel,2008,0.375
+El Hermel,Baalbek-El Hermel,2009,0.0
+El Hermel,Baalbek-El Hermel,2010,0.0625
+El Hermel,Baalbek-El Hermel,2011,0.0
+El Hermel,Baalbek-El Hermel,2012,0.75
+El Hermel,Baalbek-El Hermel,2013,0.0
+El Hermel,Baalbek-El Hermel,2014,0.0
+El Hermel,Baalbek-El Hermel,2015,0.0
+El Hermel,Baalbek-El Hermel,2016,0.0
+El Hermel,Baalbek-El Hermel,2017,0.375
+El Hermel,Baalbek-El Hermel,2018,0.25
+El Hermel,Baalbek-El Hermel,2019,0.3125
+El Hermel,Baalbek-El Hermel,2020,1.1875
+El Hermel,Baalbek-El Hermel,2021,8.1875
+El Hermel,Baalbek-El Hermel,2022,56.0
+El Hermel,Baalbek-El Hermel,2023,24.875
+El Hermel,Baalbek-El Hermel,2024,7.8125
+El Hermel,Baalbek-El Hermel,2025,0.0
+El Koura,North,2001,0.4375
+El Koura,North,2002,0.1875
+El Koura,North,2003,0.0
+El Koura,North,2004,0.0
+El Koura,North,2005,0.0
+El Koura,North,2006,0.8125
+El Koura,North,2007,0.1875
+El Koura,North,2008,0.0
+El Koura,North,2009,1.375
+El Koura,North,2010,0.5
+El Koura,North,2011,0.6875
+El Koura,North,2012,5.1875
+El Koura,North,2013,0.5
+El Koura,North,2014,0.4375
+El Koura,North,2015,0.0
+El Koura,North,2016,6.875
+El Koura,North,2017,1.75
+El Koura,North,2018,1.25
+El Koura,North,2019,0.0625
+El Koura,North,2020,2.1875
+El Koura,North,2021,0.9375
+El Koura,North,2022,1.125
+El Koura,North,2023,1.625
+El Koura,North,2024,1.6875
+El Koura,North,2025,0.625
+El Meten,Mount Lebanon,2001,1.8125
+El Meten,Mount Lebanon,2002,1.875
+El Meten,Mount Lebanon,2003,3.5
+El Meten,Mount Lebanon,2004,2.4375
+El Meten,Mount Lebanon,2005,0.5
+El Meten,Mount Lebanon,2006,1.0625
+El Meten,Mount Lebanon,2007,0.5
+El Meten,Mount Lebanon,2008,2.125
+El Meten,Mount Lebanon,2009,6.125
+El Meten,Mount Lebanon,2010,0.1875
+El Meten,Mount Lebanon,2011,1.6875
+El Meten,Mount Lebanon,2012,1.0
+El Meten,Mount Lebanon,2013,2.375
+El Meten,Mount Lebanon,2014,2.875
+El Meten,Mount Lebanon,2015,0.875
+El Meten,Mount Lebanon,2016,2.1875
+El Meten,Mount Lebanon,2017,5.5625
+El Meten,Mount Lebanon,2018,0.6875
+El Meten,Mount Lebanon,2019,6.3125
+El Meten,Mount Lebanon,2020,13.6875
+El Meten,Mount Lebanon,2021,3.625
+El Meten,Mount Lebanon,2022,10.1875
+El Meten,Mount Lebanon,2023,7.5625
+El Meten,Mount Lebanon,2024,0.375
+El Meten,Mount Lebanon,2025,1.375
+El Minieh-Dennie,North,2001,3.125
+El Minieh-Dennie,North,2002,0.0
+El Minieh-Dennie,North,2003,0.1875
+El Minieh-Dennie,North,2004,0.125
+El Minieh-Dennie,North,2005,0.75
+El Minieh-Dennie,North,2006,0.0625
+El Minieh-Dennie,North,2007,0.1875
+El Minieh-Dennie,North,2008,1.0625
+El Minieh-Dennie,North,2009,0.0
+El Minieh-Dennie,North,2010,0.0625
+El Minieh-Dennie,North,2011,0.125
+El Minieh-Dennie,North,2012,2.3125
+El Minieh-Dennie,North,2013,6.4375
+El Minieh-Dennie,North,2014,4.25
+El Minieh-Dennie,North,2015,3.3125
+El Minieh-Dennie,North,2016,0.375
+El Minieh-Dennie,North,2017,3.3125
+El Minieh-Dennie,North,2018,0.25
+El Minieh-Dennie,North,2019,12.4375
+El Minieh-Dennie,North,2020,14.5625
+El Minieh-Dennie,North,2021,12.125
+El Minieh-Dennie,North,2022,13.5625
+El Minieh-Dennie,North,2023,18.5625
+El Minieh-Dennie,North,2024,4.6875
+El Minieh-Dennie,North,2025,2.1875
+El Nabatieh,El Nabatieh,2001,0.0
+El Nabatieh,El Nabatieh,2002,0.125
+El Nabatieh,El Nabatieh,2003,0.0
+El Nabatieh,El Nabatieh,2004,0.25
+El Nabatieh,El Nabatieh,2005,0.125
+El Nabatieh,El Nabatieh,2006,0.1875
+El Nabatieh,El Nabatieh,2007,0.0
+El Nabatieh,El Nabatieh,2008,0.125
+El Nabatieh,El Nabatieh,2009,0.0625
+El Nabatieh,El Nabatieh,2010,0.125
+El Nabatieh,El Nabatieh,2011,0.5625
+El Nabatieh,El Nabatieh,2012,0.125
+El Nabatieh,El Nabatieh,2013,0.0
+El Nabatieh,El Nabatieh,2014,0.4375
+El Nabatieh,El Nabatieh,2015,0.0
+El Nabatieh,El Nabatieh,2016,0.3125
+El Nabatieh,El Nabatieh,2017,2.5625
+El Nabatieh,El Nabatieh,2018,0.0
+El Nabatieh,El Nabatieh,2019,0.0
+El Nabatieh,El Nabatieh,2020,0.0
+El Nabatieh,El Nabatieh,2021,0.0
+El Nabatieh,El Nabatieh,2022,0.25
+El Nabatieh,El Nabatieh,2023,0.4375
+El Nabatieh,El Nabatieh,2024,1.25
+El Nabatieh,El Nabatieh,2025,5.25
+Hasbaya,El Nabatieh,2001,0.0
+Hasbaya,El Nabatieh,2002,0.0
+Hasbaya,El Nabatieh,2003,0.0
+Hasbaya,El Nabatieh,2004,0.0
+Hasbaya,El Nabatieh,2005,0.0
+Hasbaya,El Nabatieh,2006,0.0
+Hasbaya,El Nabatieh,2007,1.75
+Hasbaya,El Nabatieh,2008,0.4375
+Hasbaya,El Nabatieh,2009,0.5
+Hasbaya,El Nabatieh,2010,0.0625
+Hasbaya,El Nabatieh,2011,0.25
+Hasbaya,El Nabatieh,2012,0.75
+Hasbaya,El Nabatieh,2013,0.0
+Hasbaya,El Nabatieh,2014,0.875
+Hasbaya,El Nabatieh,2015,0.25
+Hasbaya,El Nabatieh,2016,0.0
+Hasbaya,El Nabatieh,2017,0.1875
+Hasbaya,El Nabatieh,2018,0.0
+Hasbaya,El Nabatieh,2019,0.125
+Hasbaya,El Nabatieh,2020,0.25
+Hasbaya,El Nabatieh,2021,0.0
+Hasbaya,El Nabatieh,2022,2.125
+Hasbaya,El Nabatieh,2023,0.5625
+Hasbaya,El Nabatieh,2024,4.5
+Hasbaya,El Nabatieh,2025,13.625
+Jbeil,Mount Lebanon,2001,12.9375
+Jbeil,Mount Lebanon,2002,0.125
+Jbeil,Mount Lebanon,2003,0.125
+Jbeil,Mount Lebanon,2004,0.625
+Jbeil,Mount Lebanon,2005,0.8125
+Jbeil,Mount Lebanon,2006,0.625
+Jbeil,Mount Lebanon,2007,0.4375
+Jbeil,Mount Lebanon,2008,5.9375
+Jbeil,Mount Lebanon,2009,5.5
+Jbeil,Mount Lebanon,2010,0.4375
+Jbeil,Mount Lebanon,2011,0.125
+Jbeil,Mount Lebanon,2012,1.5625
+Jbeil,Mount Lebanon,2013,1.4375
+Jbeil,Mount Lebanon,2014,2.875
+Jbeil,Mount Lebanon,2015,3.0625
+Jbeil,Mount Lebanon,2016,4.1875
+Jbeil,Mount Lebanon,2017,9.5
+Jbeil,Mount Lebanon,2018,4.625
+Jbeil,Mount Lebanon,2019,19.625
+Jbeil,Mount Lebanon,2020,20.6875
+Jbeil,Mount Lebanon,2021,21.1875
+Jbeil,Mount Lebanon,2022,19.6875
+Jbeil,Mount Lebanon,2023,12.1875
+Jbeil,Mount Lebanon,2024,6.9375
+Jbeil,Mount Lebanon,2025,0.4375
+Jezzine,South,2001,0.375
+Jezzine,South,2002,0.0
+Jezzine,South,2003,2.4375
+Jezzine,South,2004,0.9375
+Jezzine,South,2005,1.5
+Jezzine,South,2006,0.5
+Jezzine,South,2007,0.125
+Jezzine,South,2008,3.6875
+Jezzine,South,2009,0.3125
+Jezzine,South,2010,0.0
+Jezzine,South,2011,0.1875
+Jezzine,South,2012,0.25
+Jezzine,South,2013,0.125
+Jezzine,South,2014,0.8125
+Jezzine,South,2015,0.25
+Jezzine,South,2016,1.8125
+Jezzine,South,2017,2.0
+Jezzine,South,2018,1.625
+Jezzine,South,2019,0.8125
+Jezzine,South,2020,2.0625
+Jezzine,South,2021,0.0
+Jezzine,South,2022,3.5625
+Jezzine,South,2023,0.25
+Jezzine,South,2024,5.0
+Jezzine,South,2025,25.5625
+Kesrwane,Mount Lebanon,2001,2.0
+Kesrwane,Mount Lebanon,2002,0.125
+Kesrwane,Mount Lebanon,2003,0.5
+Kesrwane,Mount Lebanon,2004,0.0625
+Kesrwane,Mount Lebanon,2005,0.125
+Kesrwane,Mount Lebanon,2006,0.1875
+Kesrwane,Mount Lebanon,2007,0.5
+Kesrwane,Mount Lebanon,2008,0.5625
+Kesrwane,Mount Lebanon,2009,1.25
+Kesrwane,Mount Lebanon,2010,0.125
+Kesrwane,Mount Lebanon,2011,0.0
+Kesrwane,Mount Lebanon,2012,0.875
+Kesrwane,Mount Lebanon,2013,0.9375
+Kesrwane,Mount Lebanon,2014,3.0
+Kesrwane,Mount Lebanon,2015,1.0
+Kesrwane,Mount Lebanon,2016,1.4375
+Kesrwane,Mount Lebanon,2017,9.125
+Kesrwane,Mount Lebanon,2018,2.6875
+Kesrwane,Mount Lebanon,2019,2.3125
+Kesrwane,Mount Lebanon,2020,0.6875
+Kesrwane,Mount Lebanon,2021,8.1875
+Kesrwane,Mount Lebanon,2022,2.25
+Kesrwane,Mount Lebanon,2023,3.75
+Kesrwane,Mount Lebanon,2024,0.6875
+Kesrwane,Mount Lebanon,2025,0.0625
+Marjaayoun,El Nabatieh,2001,0.0
+Marjaayoun,El Nabatieh,2002,0.0
+Marjaayoun,El Nabatieh,2003,0.0
+Marjaayoun,El Nabatieh,2004,0.0
+Marjaayoun,El Nabatieh,2005,0.0
+Marjaayoun,El Nabatieh,2006,0.125
+Marjaayoun,El Nabatieh,2007,0.0
+Marjaayoun,El Nabatieh,2008,0.0
+Marjaayoun,El Nabatieh,2009,0.0
+Marjaayoun,El Nabatieh,2010,0.0
+Marjaayoun,El Nabatieh,2011,0.0
+Marjaayoun,El Nabatieh,2012,0.0
+Marjaayoun,El Nabatieh,2013,0.0
+Marjaayoun,El Nabatieh,2014,0.0
+Marjaayoun,El Nabatieh,2015,0.0
+Marjaayoun,El Nabatieh,2016,2.9375
+Marjaayoun,El Nabatieh,2017,2.1875
+Marjaayoun,El Nabatieh,2018,0.0
+Marjaayoun,El Nabatieh,2019,7.9375
+Marjaayoun,El Nabatieh,2020,1.5
+Marjaayoun,El Nabatieh,2021,2.3125
+Marjaayoun,El Nabatieh,2022,0.0
+Marjaayoun,El Nabatieh,2023,0.0
+Marjaayoun,El Nabatieh,2024,0.8125
+Marjaayoun,El Nabatieh,2025,10.125
+Rachaya,Bekaa,2001,0.0
+Rachaya,Bekaa,2002,0.0
+Rachaya,Bekaa,2003,0.0
+Rachaya,Bekaa,2004,0.0
+Rachaya,Bekaa,2005,0.0
+Rachaya,Bekaa,2006,0.0
+Rachaya,Bekaa,2007,0.0
+Rachaya,Bekaa,2008,0.0
+Rachaya,Bekaa,2009,0.0
+Rachaya,Bekaa,2010,0.0
+Rachaya,Bekaa,2011,0.0
+Rachaya,Bekaa,2012,0.0
+Rachaya,Bekaa,2013,0.0
+Rachaya,Bekaa,2014,0.0
+Rachaya,Bekaa,2015,0.0
+Rachaya,Bekaa,2016,0.0
+Rachaya,Bekaa,2017,0.0
+Rachaya,Bekaa,2018,0.0
+Rachaya,Bekaa,2019,0.0
+Rachaya,Bekaa,2020,0.0
+Rachaya,Bekaa,2021,0.0
+Rachaya,Bekaa,2022,0.0
+Rachaya,Bekaa,2023,0.0
+Rachaya,Bekaa,2024,0.0625
+Rachaya,Bekaa,2025,0.0
+Saida,South,2001,0.0
+Saida,South,2002,0.25
+Saida,South,2003,0.125
+Saida,South,2004,0.0
+Saida,South,2005,0.0
+Saida,South,2006,0.0
+Saida,South,2007,0.0
+Saida,South,2008,0.125
+Saida,South,2009,0.0
+Saida,South,2010,0.0
+Saida,South,2011,0.0
+Saida,South,2012,0.1875
+Saida,South,2013,0.25
+Saida,South,2014,0.875
+Saida,South,2015,0.0
+Saida,South,2016,1.375
+Saida,South,2017,1.0625
+Saida,South,2018,0.3125
+Saida,South,2019,0.125
+Saida,South,2020,0.0625
+Saida,South,2021,2.0625
+Saida,South,2022,0.625
+Saida,South,2023,0.6875
+Saida,South,2024,0.5
+Saida,South,2025,0.625
+Sour,South,2001,0.4375
+Sour,South,2002,0.4375
+Sour,South,2003,0.1875
+Sour,South,2004,0.0
+Sour,South,2005,1.5625
+Sour,South,2006,4.6875
+Sour,South,2007,0.25
+Sour,South,2008,0.0
+Sour,South,2009,2.875
+Sour,South,2010,0.0625
+Sour,South,2011,0.125
+Sour,South,2012,0.1875
+Sour,South,2013,0.0
+Sour,South,2014,0.125
+Sour,South,2015,0.3125
+Sour,South,2016,0.9375
+Sour,South,2017,1.9375
+Sour,South,2018,0.0
+Sour,South,2019,0.0625
+Sour,South,2020,0.125
+Sour,South,2021,2.125
+Sour,South,2022,6.75
+Sour,South,2023,82.0625
+Sour,South,2024,69.5
+Sour,South,2025,35.375
+Tripoli,North,2001,0.0
+Tripoli,North,2002,0.0
+Tripoli,North,2003,0.0
+Tripoli,North,2004,0.0
+Tripoli,North,2005,0.0
+Tripoli,North,2006,0.0
+Tripoli,North,2007,0.0
+Tripoli,North,2008,0.0
+Tripoli,North,2009,0.0
+Tripoli,North,2010,0.0
+Tripoli,North,2011,0.0
+Tripoli,North,2012,0.0
+Tripoli,North,2013,0.0625
+Tripoli,North,2014,0.0625
+Tripoli,North,2015,0.125
+Tripoli,North,2016,0.0
+Tripoli,North,2017,0.0
+Tripoli,North,2018,0.0
+Tripoli,North,2019,0.0
+Tripoli,North,2020,0.0
+Tripoli,North,2021,0.0
+Tripoli,North,2022,0.0
+Tripoli,North,2023,0.0
+Tripoli,North,2024,0.0
+Tripoli,North,2025,0.0
+West Bekaa,Bekaa,2001,0.0
+West Bekaa,Bekaa,2002,0.0
+West Bekaa,Bekaa,2003,0.0
+West Bekaa,Bekaa,2004,0.0
+West Bekaa,Bekaa,2005,0.0
+West Bekaa,Bekaa,2006,0.0
+West Bekaa,Bekaa,2007,1.25
+West Bekaa,Bekaa,2008,0.1875
+West Bekaa,Bekaa,2009,0.0
+West Bekaa,Bekaa,2010,0.0
+West Bekaa,Bekaa,2011,0.1875
+West Bekaa,Bekaa,2012,0.0
+West Bekaa,Bekaa,2013,0.0
+West Bekaa,Bekaa,2014,0.0
+West Bekaa,Bekaa,2015,0.0
+West Bekaa,Bekaa,2016,0.125
+West Bekaa,Bekaa,2017,0.0
+West Bekaa,Bekaa,2018,0.0
+West Bekaa,Bekaa,2019,0.0
+West Bekaa,Bekaa,2020,0.3125
+West Bekaa,Bekaa,2021,0.0625
+West Bekaa,Bekaa,2022,1.3125
+West Bekaa,Bekaa,2023,0.0
+West Bekaa,Bekaa,2024,0.0
+West Bekaa,Bekaa,2025,0.0
+Zahle,Bekaa,2001,0.125
+Zahle,Bekaa,2002,0.0
+Zahle,Bekaa,2003,0.0
+Zahle,Bekaa,2004,0.0
+Zahle,Bekaa,2005,0.0
+Zahle,Bekaa,2006,0.0
+Zahle,Bekaa,2007,0.0
+Zahle,Bekaa,2008,0.0
+Zahle,Bekaa,2009,0.0
+Zahle,Bekaa,2010,0.0
+Zahle,Bekaa,2011,0.0625
+Zahle,Bekaa,2012,0.0
+Zahle,Bekaa,2013,0.0
+Zahle,Bekaa,2014,0.0
+Zahle,Bekaa,2015,0.0
+Zahle,Bekaa,2016,0.0
+Zahle,Bekaa,2017,0.0
+Zahle,Bekaa,2018,0.0
+Zahle,Bekaa,2019,0.0
+Zahle,Bekaa,2020,0.3125
+Zahle,Bekaa,2021,0.0
+Zahle,Bekaa,2022,0.0
+Zahle,Bekaa,2023,0.0
+Zahle,Bekaa,2024,0.0
+Zahle,Bekaa,2025,0.0
+Zgharta,North,2001,0.6875
+Zgharta,North,2002,0.0
+Zgharta,North,2003,0.375
+Zgharta,North,2004,0.1875
+Zgharta,North,2005,0.125
+Zgharta,North,2006,0.3125
+Zgharta,North,2007,7.125
+Zgharta,North,2008,27.75
+Zgharta,North,2009,0.0
+Zgharta,North,2010,0.0625
+Zgharta,North,2011,0.0625
+Zgharta,North,2012,0.0
+Zgharta,North,2013,0.125
+Zgharta,North,2014,0.0
+Zgharta,North,2015,0.0
+Zgharta,North,2016,12.75
+Zgharta,North,2017,1.75
+Zgharta,North,2018,1.5625
+Zgharta,North,2019,6.875
+Zgharta,North,2020,4.625
+Zgharta,North,2021,0.1875
+Zgharta,North,2022,0.75
+Zgharta,North,2023,1.5625
+Zgharta,North,2024,0.6875
+Zgharta,North,2025,1.3125
