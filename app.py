@@ -35,8 +35,8 @@ FONT = "Inter, system-ui, -apple-system, Segoe UI, sans-serif"
 
 def style(fig, h=380):
     fig.update_layout(
-        height=h, margin=dict(l=8, r=8, t=36, b=8), paper_bgcolor=SURFACE, plot_bgcolor=SURFACE,
-        font=dict(family=FONT, color=INK2, size=13), title_font=dict(color=INK, size=15),
+        height=round(h * 0.9), margin=dict(l=8, r=8, t=34, b=8), paper_bgcolor=SURFACE, plot_bgcolor=SURFACE,
+        font=dict(family=FONT, color=INK2, size=12), title_font=dict(color=INK, size=14),
         hoverlabel=dict(bgcolor="#0E1013", font_color=INK, bordercolor=AXIS), legend=dict(orientation="h", yanchor="top", y=-0.12, x=0),
     )
     fig.update_xaxes(showgrid=False, linecolor=AXIS, tickfont_color=MUTED, title_font_color=INK2)
@@ -73,7 +73,7 @@ def station_layers(half_h=0.055):
 def station_hover():
     """Invisible markers on top of the emblems so hovering shows the station name."""
     return go.Scattermap(lat=stations.latitude, lon=stations.longitude, mode="markers", name="Fire station",
-                         marker=dict(size=22, color="rgba(0,0,0,0)"), customdata=stations[["name", "district"]],
+                         marker=dict(size=20, color="rgba(0,0,0,0)"), customdata=stations[["name", "district"]],
                          hovertemplate="<b>%{customdata[0]}</b><br>%{customdata[1]} district<extra>Fire station</extra>")
 area = {ft["properties"]["district"]: ft["properties"]["area_sqkm"] for ft in geo["features"]}
 
@@ -81,6 +81,7 @@ area = {ft["properties"]["district"]: ft["properties"]["area_sqkm"] for ft in ge
 # ---------- page styling (Ember Night) ----------
 st.markdown("""<style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+html{font-size:14.4px}
 html,body,.stApp,.stApp p,.stApp label,.stApp button,.stApp input{font-family:'Inter',system-ui,sans-serif}
 .stApp,[data-testid="stAppViewContainer"]{background:#0E1013;color:#ECE8E1;overflow-x:hidden}
 [data-testid="stHeader"]{display:none}
@@ -95,32 +96,32 @@ div[data-testid="stMetric"]{background:#171A20;border:1px solid #2A2E36;border-l
 /* full-bleed hero */
 .st-key-hero{width:100vw !important;max-width:100vw !important;position:relative;left:50%;margin-left:-50vw;margin-top:-2rem}
 .st-key-hero [data-testid="stPlotlyChart"]{border-bottom:1px solid #2A2E36}
-.st-key-hero .updatemenu-button rect{rx:18px;ry:18px}
+.st-key-hero .updatemenu-button rect{rx:16.2px;ry:16.2px}
 .st-key-hero .updatemenu-button text{font-weight:700 !important}
 /* filter chips floating over the top-right of the map */
-.st-key-filters{position:relative;z-index:30;width:min(780px,60vw);margin-left:auto;top:14px;margin-bottom:-74px}
+.st-key-filters{position:relative;z-index:30;width:min(702px,60vw);margin-left:auto;top:12.6px;margin-bottom:-66.6px}
 [data-testid="stMainBlockContainer"]{padding-top:0 !important}
-.st-key-filters [data-testid="stHorizontalBlock"]{gap:10px}
+.st-key-filters [data-testid="stHorizontalBlock"]{gap:9px}
 /* overlay text on the map */
-.hero-ov{position:relative;z-index:5;pointer-events:none;height:680px;margin-top:-696px;padding:56px 0 0 48px;font-family:'Inter',sans-serif}
-.hero-ov .tag{display:inline-block;background:rgba(255,106,43,.15);color:#ffb28c;border:1px solid rgba(255,106,43,.45);border-radius:99px;padding:4px 13px;font-size:13px;letter-spacing:1.5px}
-.hero-ov .h1{font-family:'Inter',sans-serif;font-size:64px;line-height:1.0;margin:16px 0 12px;font-weight:900;color:#F5F2EE !important;letter-spacing:-1.5px}
+.hero-ov{position:relative;z-index:5;pointer-events:none;height:612px;margin-top:-626.4px;padding:50.4px 0 0 43.2px;font-family:'Inter',sans-serif}
+.hero-ov .tag{display:inline-block;background:rgba(255,106,43,.15);color:#ffb28c;border:1px solid rgba(255,106,43,.45);border-radius:89.1px;padding:3.6px 11.7px;font-size:11.7px;letter-spacing:1.5px}
+.hero-ov .h1{font-family:'Inter',sans-serif;font-size:57.6px;line-height:1.0;margin:14.4px 0 10.8px;font-weight:900;color:#F5F2EE !important;letter-spacing:-1.5px}
 .hero-ov .h1 .hot{color:#FF6A2B !important}
-.hero-ov p.sub{font-size:17px;color:#d8cfc6 !important;margin:0;max-width:480px;line-height:1.35}
-.kgrid{position:absolute;left:48px;bottom:30px;display:grid;grid-template-columns:repeat(4,190px);gap:12px}
-.kc{background:rgba(23,26,32,.86);backdrop-filter:blur(6px);border:1px solid #2A2E36;border-left:4px solid #FF6A2B;border-radius:12px;padding:12px 16px}
-.kc .l{font-size:12px;color:#B9B3AA !important}.kc .v{font-size:28px;font-weight:800;color:#fff !important;line-height:1.2}.kc .s{font-size:12px;color:#FF9a6b !important}
-.legend{position:absolute;right:28px;bottom:86px;background:rgba(23,26,32,.88);border:1px solid #2A2E36;border-radius:10px;padding:10px 14px;font-size:12px;width:190px}
-.legend .bar{height:8px;border-radius:4px;background:linear-gradient(90deg,#2840ff,#00c8ff,#00d25a,#ffe000,#ff8c00,#e61414);margin:7px 0 3px}
-.stTabs [data-baseweb="tab-list"]{gap:10px;margin-top:14px}
-.stTabs [data-baseweb="tab"]{border:1px solid #3A3F48 !important;border-radius:99px !important;padding:6px 18px !important;height:auto !important;background:transparent !important}
+.hero-ov p.sub{font-size:15.3px;color:#d8cfc6 !important;margin:0;max-width:432px;line-height:1.35}
+.kgrid{position:absolute;left:43.2px;bottom:27px;display:grid;grid-template-columns:repeat(4,171px);gap:10.8px}
+.kc{background:rgba(23,26,32,.86);backdrop-filter:blur(5.4px);border:1px solid #2A2E36;border-left:3.6px solid #FF6A2B;border-radius:10.8px;padding:10.8px 14.4px}
+.kc .l{font-size:10.8px;color:#B9B3AA !important}.kc .v{font-size:25.2px;font-weight:800;color:#fff !important;line-height:1.2}.kc .s{font-size:10.8px;color:#FF9a6b !important}
+.legend{position:absolute;right:25.2px;bottom:77.4px;background:rgba(23,26,32,.88);border:1px solid #2A2E36;border-radius:9px;padding:9px 12.6px;font-size:10.8px;width:171px}
+.legend .bar{height:7.2px;border-radius:3.6px;background:linear-gradient(90deg,#2840ff,#00c8ff,#00d25a,#ffe000,#ff8c00,#e61414);margin:6.3px 0 2.7px}
+.stTabs [data-baseweb="tab-list"]{gap:9px;margin-top:12.6px}
+.stTabs [data-baseweb="tab"]{border:1px solid #3A3F48 !important;border-radius:89.1px !important;padding:5.4px 16.2px !important;height:auto !important;background:transparent !important}
 .stTabs [data-baseweb="tab"][aria-selected="true"]{background:#FF6A2B !important;border-color:#FF6A2B !important}
 .stTabs [data-baseweb="tab"][aria-selected="true"] p{color:#111 !important;font-weight:700}
 .stTabs [data-baseweb="tab-highlight"],.stTabs [data-baseweb="tab-border"]{display:none}
-.st-key-livechip{background:rgba(23,26,32,.92);border:1px solid #2A2E36;border-radius:8px;padding:7px 12px 3px;height:42px}
+.st-key-livechip{background:rgba(23,26,32,.92);border:1px solid #2A2E36;border-radius:7.2px;padding:6.3px 10.8px 2.7px;height:37.8px}
 .st-key-livechip label p{font-weight:800;letter-spacing:1px;color:#ff4d4d !important}
 .hero-ov .tag.live{background:rgba(230,20,20,.18);border-color:rgba(255,77,77,.6);color:#ffb3b3}
-.hero-ov .tag .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#ff3b3b;margin-right:8px;box-shadow:0 0 0 0 rgba(255,59,59,.7);animation:pulse 1.6s infinite}
+.hero-ov .tag .dot{display:inline-block;width:8.1px;height:8.1px;border-radius:50%;background:#ff3b3b;margin-right:7.2px;box-shadow:0 0 0 0 rgba(255,59,59,.7);animation:pulse 1.6s infinite}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,59,59,.7)}70%{box-shadow:0 0 0 10px rgba(255,59,59,0)}100%{box-shadow:0 0 0 0 rgba(255,59,59,0)}}
 .ld{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
 </style>""", unsafe_allow_html=True)
@@ -170,9 +171,9 @@ def hero_figure(yr, gsel, wsel, secs, mode, pick, show_st, no_tiles):
 
     def station_traces(sy, acol, lim, unit):
         out = [dict(type="scattermap", lat=sy.lat.tolist(), lon=sy.lon.tolist(), mode="markers",
-                    marker=dict(size=26, color="white"), hoverinfo="skip"),
+                    marker=dict(size=23, color="white"), hoverinfo="skip"),
                dict(type="scattermap", lat=sy.lat.tolist(), lon=sy.lon.tolist(), mode="markers",
-                    marker=dict(size=21, color=sy[acol].tolist(), colorscale=DIV, cmin=-lim, cmax=lim, showscale=False),
+                    marker=dict(size=19, color=sy[acol].tolist(), colorscale=DIV, cmin=-lim, cmax=lim, showscale=False),
                     customdata=sy[["site", "temp", "rain", "temp_anom", "rain_anom"]].values.tolist(),
                     hovertemplate="<b>%{customdata[0]}</b><br>Avg max temp %{customdata[1]:.1f}°C "
                                   "(%{customdata[3]:+.1f}°C vs normal)<br>Rain %{customdata[2]:.0f} mm "
@@ -183,8 +184,8 @@ def hero_figure(yr, gsel, wsel, secs, mode, pick, show_st, no_tiles):
             txt = [f"{name} {v:+.1f}°C" if is_temp else f"{name} {v:+.0f} {unit} rain" for v in r[acol]]
             txt = [f"   {t}" if "right" in pos else f"{t}   " for t in txt]
             out.append(dict(type="scattermap", lat=r.lat.tolist(), lon=r.lon.tolist(), mode="markers+text",
-                            textposition=pos, text=txt, marker=dict(size=26, color="rgba(0,0,0,0)"),
-                            hoverinfo="skip", textfont=dict(color="white", size=13)))
+                            textposition=pos, text=txt, marker=dict(size=23, color="rgba(0,0,0,0)"),
+                            hoverinfo="skip", textfont=dict(color="white", size=12)))
         return out
 
     def heat(pts, zmax):
@@ -208,7 +209,7 @@ def hero_figure(yr, gsel, wsel, secs, mode, pick, show_st, no_tiles):
                      hovertemplate="Fire in %{customdata[0]}<br>%{customdata[1]}<extra></extra>")] + \
                (station_traces(sy, acol, float(wy[acol].abs().max()), "%") if w_on else [])
         tm, rm = sy.temp_anom.mean(), sy.rain_anom.mean()
-        title = (f"<span style='font-size:34px'><b>{pick}</b></span><br>{len(fy):,} fires · "
+        title = (f"<span style='font-size:31px'><b>{pick}</b></span><br>{len(fy):,} fires · "
                  f"{'hotter' if tm > 0 else 'cooler'} than normal ({tm:+.1f}°C) · rain {rm:+.0f}% vs normal")
     else:
         # weather by month
@@ -235,7 +236,7 @@ def hero_figure(yr, gsel, wsel, secs, mode, pick, show_st, no_tiles):
             age = D - day
             k = (age >= 0) & (age < FADE)
             a = age[k]
-            size = (4 + 9 * np.exp(-a / 6)).round(1).tolist()
+            size = (3.6 + 8.1 * np.exp(-a / 6)).round(1).tolist()
             op = (0.18 + 0.82 * np.exp(-a / 12)).round(2).tolist()
             col = np.where(a < 7, "#fff3a0", np.where(a < 21, "#ffb000", "#ff5a1a")).tolist()
             return dict(type="scattermap", lat=lat[k].tolist(), lon=lon[k].tolist(), mode="markers",
@@ -257,7 +258,7 @@ def hero_figure(yr, gsel, wsel, secs, mode, pick, show_st, no_tiles):
         for k, D in enumerate(range(0, n_days + 1, STEP)):
             date = origin + pd.Timedelta(days=D)
             T = date.year * 12 + date.month - 1
-            ttl_head = f"<span style='font-size:34px'><b>{MONTH_NAMES[date.month - 1]} {date.year}</b></span><br>"
+            ttl_head = f"<span style='font-size:31px'><b>{MONTH_NAMES[date.month - 1]} {date.year}</b></span><br>"
             if T != prevT:
                 h, stn, sub = month_parts(T)
                 fr = dict(name=str(k), data=[h, dots(D)] + stn, traces=list(range(n_tr)),
@@ -271,12 +272,12 @@ def hero_figure(yr, gsel, wsel, secs, mode, pick, show_st, no_tiles):
             frames.append(fr)
         # before Play: the whole period at a glance (all fires as one heat glow); Play then runs week by week
         data = [heat(dd, max(3.0, 0.004 * len(dd))), dict(type="scattermap", lat=[], lon=[], mode="markers")] + frames[0]["data"][2:]
-        title = (f"<span style='font-size:34px'><b>{yr[0]}–{yr[1]}</b></span><br>{len(dd):,} fires · press Play to watch them "
+        title = (f"<span style='font-size:31px'><b>{yr[0]}–{yr[1]}</b></span><br>{len(dd):,} fires · press Play to watch them "
                  "spread week by week")
         ms = int(secs * 1000 * STEP / 365)
         menus = [dict(type="buttons", direction="left", x=0.031, y=0.49, xanchor="left", yanchor="top",
-                      pad=dict(r=10, t=0, l=0), showactive=False, bgcolor="#FF6A2B", bordercolor="#FF6A2B",
-                      font=dict(color="#111111", size=15, family="Inter, sans-serif"),
+                      pad=dict(r=9, t=0, l=0), showactive=False, bgcolor="#FF6A2B", bordercolor="#FF6A2B",
+                      font=dict(color="#111111", size=14, family="Inter, sans-serif"),
                       buttons=[dict(label=f"▶  Play {yr[0]} → {yr[1]}", method="animate",
                                     args=[None, dict(frame=dict(duration=ms, redraw=True),
                                                      transition=dict(duration=0), fromcurrent=True)]),
@@ -285,12 +286,12 @@ def hero_figure(yr, gsel, wsel, secs, mode, pick, show_st, no_tiles):
                                                        mode="immediate", transition=dict(duration=0))])])]
         sliders = [dict(active=0, x=0.645, len=0.335, y=0.025, yanchor="bottom", pad=dict(t=0, b=0),
                         currentvalue=dict(visible=False), ticklen=3, minorticklen=0, bgcolor="#2A2E36",
-                        activebgcolor="#FF6A2B", bordercolor="#3A3F48", font=dict(color="#C9C4BC", size=11),
+                        activebgcolor="#FF6A2B", bordercolor="#3A3F48", font=dict(color="#C9C4BC", size=10),
                         tickcolor="#5c5852", steps=steps)]
 
     if show_st:
         data = data + [dict(type="scattermap", lat=stations.latitude.tolist(), lon=stations.longitude.tolist(),
-                            mode="markers", marker=dict(size=22, color="rgba(0,0,0,0)"),
+                            mode="markers", marker=dict(size=20, color="rgba(0,0,0,0)"),
                             customdata=stations[["name", "district"]].values.tolist(),
                             hovertemplate="<b>%{customdata[0]}</b><br>%{customdata[1]} district<extra>Fire station</extra>")]
     layers = ([] if no_tiles else [
@@ -301,14 +302,14 @@ def hero_figure(yr, gsel, wsel, secs, mode, pick, show_st, no_tiles):
         dict(source=geo_border, type="line", color="#ff4d4d", line=dict(width=2.5, dash=[2, 1.5]), below="traces")
     ] + (station_layers(0.045) if show_st else [])
     layout = dict(
-        height=680, margin=dict(l=0, r=0, t=0, b=0), paper_bgcolor="#0E1013", showlegend=False,
+        height=612, margin=dict(l=0, r=0, t=0, b=0), paper_bgcolor="#0E1013", showlegend=False,
         font=dict(family=FONT, color="#ECE8E1"),
         title=dict(text=title, x=0.031, xanchor="left", y=0.395, yanchor="top", yref="paper",
-                   font=dict(size=15, color="#ECE8E1")),
+                   font=dict(size=14, color="#ECE8E1")),
         hoverlabel=dict(bgcolor="#0E1013", font_color="#ECE8E1"),
         updatemenus=menus, sliders=sliders,
         images=[dict(source=GRAD, xref='paper', yref='paper', x=0, y=1, sizex=0.5, sizey=1, sizing='stretch', layer='above', xanchor='left', yanchor='top')],
-        map=dict(style="white-bg", center={"lat": 33.86, "lon": 35.25}, zoom=7.7, layers=layers))
+        map=dict(style="white-bg", center={"lat": 33.79, "lon": 34.62}, zoom=6.95, layers=layers))
     return dict(data=data, layout=layout, frames=frames)
 
 
@@ -453,7 +454,7 @@ def live_figure(s, no_tiles, days):
         dict(source=geo_border, type="line", color="#ff4d4d", line=dict(width=2.5, dash=[2, 1.5]), below="traces")]
     a1, a2 = age_bands(days)[:2]
     col = np.where(s.age_h < a1, "#fff3a0", np.where(s.age_h < a2, "#ffb000", "#ff5a1a"))
-    size = 0.72 * (9 + 10 * np.clip(np.log1p(s.frp.fillna(1)) / 4, 0, 1.4))   # ~30% smaller dots
+    size = 0.65 * (9 + 10 * np.clip(np.log1p(s.frp.fillna(1)) / 4, 0, 1.4))   # ~30% smaller dots
     hover = [f"<b>{dd}</b><br>{w.astimezone(BEIRUT):%a %d %b, %H:%M} Beirut time · {ago(a)}<br>Intensity {f:,.1f} MW · {sn}"
              for dd, w, a, f, sn in zip(s.district, s["when"], s.age_h, s.frp.fillna(0), s.sensor)]
     data = [
@@ -462,11 +463,11 @@ def live_figure(s, no_tiles, days):
         go.Scattermap(lat=s.latitude, lon=s.longitude, mode="markers", text=hover, hovertemplate="%{text}<extra></extra>",
                       marker=dict(size=size, color=col, opacity=0.95))]
     fig = go.Figure(data)
-    fig.update_layout(height=680, margin=dict(l=0, r=0, t=0, b=0), paper_bgcolor="#0E1013", showlegend=False,
+    fig.update_layout(height=612, margin=dict(l=0, r=0, t=0, b=0), paper_bgcolor="#0E1013", showlegend=False,
                       font=dict(family=FONT, color="#ECE8E1"), hoverlabel=dict(bgcolor="#0E1013", font_color="#ECE8E1"),
                       images=[dict(source=GRAD, xref='paper', yref='paper', x=0, y=1, sizex=0.5, sizey=1, sizing='stretch',
                                    layer='above', xanchor='left', yanchor='top')],
-                      map=dict(style="white-bg", center={"lat": 33.86, "lon": 35.25}, zoom=7.7, layers=layers))
+                      map=dict(style="white-bg", center={"lat": 33.79, "lon": 34.62}, zoom=6.95, layers=layers))
     return fig
 
 
@@ -553,7 +554,7 @@ with tab_where:
                               hover_data={"fires": ":,", "district": False}, hover_name="district",
                               labels={"fires": "Fires"},
                               map_style="white-bg" if os.environ.get("NO_TILES") else "carto-positron",
-                              center={"lat": 33.9, "lon": 35.85}, zoom=7.55, opacity=0.95)
+                              center={"lat": 33.9, "lon": 35.85}, zoom=7.40, opacity=0.95)
         m.update_traces(marker_line_color="white", marker_line_width=1)
         m.update_layout(coloraxis_colorbar=dict(title="Total fires", thickness=12, len=0.7, tickfont=dict(color=INK2)),
                         showlegend=False)
@@ -567,11 +568,11 @@ with tab_where:
         cols = [FIRE if n in rank else "#C8C6BE" for n in top.index]
         bar = go.Figure(go.Bar(x=top.values, y=top.index, orientation="h", marker_color=cols,
                                text=[f"{v:,}" for v in top.values], textposition="outside",
-                               textfont=dict(color=[FIRE if n in rank else MUTED for n in top.index], size=13),
+                               textfont=dict(color=[FIRE if n in rank else MUTED for n in top.index], size=12),
                                cliponaxis=False, hovertemplate="%{y}: %{x:,} fires<extra></extra>"))
         bar.update_layout(title="Top 10 districts by fires", bargap=0.3)
         bar.update_xaxes(showgrid=False, showticklabels=False, range=[0, top.max() * 1.15])
-        bar.update_yaxes(showgrid=False, tickfont=dict(size=13))
+        bar.update_yaxes(showgrid=False, tickfont=dict(size=12))
         bar = style(bar, 600)
         bar.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=8, r=8, t=36, b=0))
         st.plotly_chart(bar, width="stretch")
@@ -681,11 +682,11 @@ with tab_cost:
         dm = px.choropleth_map(byd.rename("loss_ha").reset_index(), geojson=geo, locations="district",
                                featureidkey="properties.district", color="loss_ha", color_continuous_scale=GREENS,
                                map_style="white-bg" if os.environ.get("NO_TILES") else "carto-positron",
-                               center={"lat": 33.9, "lon": 35.85}, zoom=7.55, opacity=0.95,
+                               center={"lat": 33.9, "lon": 35.85}, zoom=7.40, opacity=0.95,
                                labels={"loss_ha": "Forest loss (ha)"})
         dm.update_traces(marker_line_color="#ffffff", marker_line_width=0.8,
                          hovertemplate="%{location}: %{z:,.1f} ha<extra></extra>")
-        dm.update_layout(title="Forest loss by district · selected years", height=600, margin=dict(l=0, r=0, t=36, b=0),
+        dm.update_layout(title="Forest loss by district · selected years", height=540, margin=dict(l=0, r=0, t=34, b=0),
                          paper_bgcolor="rgba(0,0,0,0)", font_color=INK,
                          coloraxis_colorbar=dict(title="ha", thickness=10, len=0.6))
         st.plotly_chart(dm, width="stretch")
@@ -699,7 +700,7 @@ with tab_cost:
                               hovertemplate="%{y}: %{x:,.1f} ha<extra></extra>"))
         hb.update_layout(title="Top 10 districts by forest loss", bargap=0.3)
         hb.update_xaxes(showgrid=False, showticklabels=False, range=[0, (top.max() if len(top) else 1) * 1.2])
-        hb.update_yaxes(showgrid=False, tickfont=dict(size=13))
+        hb.update_yaxes(showgrid=False, tickfont=dict(size=12))
         hb = style(hb, 600)
         hb.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=8, r=8, t=36, b=0))
         st.plotly_chart(hb, width="stretch")
