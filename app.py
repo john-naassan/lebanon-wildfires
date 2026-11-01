@@ -435,13 +435,13 @@ def age_bands(days):
 
 
 def live_figure(s, no_tiles, days):
-    layers = ([dict(sourcetype="image", source=PREV, coordinates=PREV_COORDS, below="traces")] if "PREV" in globals() and no_tiles else
-              [] if no_tiles else [
-        dict(sourcetype="raster", below="traces", sourceattribution="Imagery © Esri, Maxar, Earthstar Geographics",
-             source=["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"]),
-        dict(sourcetype="raster", below="traces",
-             source=["https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"])]) + [
-        dict(source=geo_border, type="line", color="#ff4d4d", line=dict(width=2.5, dash=[2, 1.5]), below="traces")]
+    # dimmed "night" map for live mode: navy background, dark land, faint district lines, red dashed border
+    layers = [dict(source={"type": "Feature", "geometry": {"type": "Polygon",
+                   "coordinates": [[[30, 30], [40, 30], [40, 37], [30, 37], [30, 30]]]}},
+                   type="fill", color="#0b1624", below="traces"),
+              dict(source=geo, type="fill", color="#1d241d", below="traces"),
+              dict(source=geo, type="line", color="#3d463b", line=dict(width=0.8), below="traces"),
+              dict(source=geo_border, type="line", color="#ff4d4d", line=dict(width=2.5, dash=[2, 1.5]), below="traces")]
     a1, a2 = age_bands(days)[:2]
     col = np.where(s.age_h < a1, "#fff3a0", np.where(s.age_h < a2, "#ffb000", "#ff5a1a"))
     size = 9 + 10 * np.clip(np.log1p(s.frp.fillna(1)) / 4, 0, 1.4)
