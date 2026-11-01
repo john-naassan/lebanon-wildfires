@@ -2,6 +2,7 @@
 import base64
 import json
 import os
+import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -24,19 +25,19 @@ def P(name):
 
 
 # ---------- design tokens (reference palette, light mode) ----------
-INK, INK2, MUTED = "#0b0b0b", "#52514e", "#898781"
-GRID, AXIS, SURFACE = "#e1e0d9", "#c3c2b7", "#fcfcfb"
-FIRE, OTHER = "#eb6834", "#2a78d6"            # categorical slots 2 and 1
-FIRE_RAMP = ["#fdeee6", "#f9c9ad", "#f3a07a", "#eb6834", "#c94d1f", "#9a3412", "#6b2109"]  # one hue, light->dark
+INK, INK2, MUTED = "#F2EEE8", "#C9C4BC", "#8C877F"
+GRID, AXIS, SURFACE = "#2A2E36", "#3A3F48", "#171A20"
+FIRE, OTHER = "#FF6A2B", "#4C6EF5"            # categorical slots 2 and 1
+FIRE_RAMP = ["#2a1a14", "#5a2a17", "#8f3a17", "#c94d1f", "#eb6834", "#ff8a4c", "#ffc199"]  # one hue, light->dark
 MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-FONT = "system-ui, -apple-system, Segoe UI, sans-serif"
+FONT = "Inter, system-ui, -apple-system, Segoe UI, sans-serif"
 
 
 def style(fig, h=380):
     fig.update_layout(
         height=h, margin=dict(l=8, r=8, t=36, b=8), paper_bgcolor=SURFACE, plot_bgcolor=SURFACE,
         font=dict(family=FONT, color=INK2, size=13), title_font=dict(color=INK, size=15),
-        hoverlabel=dict(bgcolor="white", font_color=INK, bordercolor=AXIS), legend=dict(orientation="h", yanchor="top", y=-0.12, x=0),
+        hoverlabel=dict(bgcolor="#0E1013", font_color=INK, bordercolor=AXIS), legend=dict(orientation="h", yanchor="top", y=-0.12, x=0),
     )
     fig.update_xaxes(showgrid=False, linecolor=AXIS, tickfont_color=MUTED, title_font_color=INK2)
     fig.update_yaxes(gridcolor=GRID, zeroline=False, linecolor=AXIS, tickfont_color=MUTED, title_font_color=INK2)
@@ -74,40 +75,243 @@ def station_hover():
                          hovertemplate="<b>%{customdata[0]}</b><br>%{customdata[1]} district<extra>Fire station</extra>")
 area = {ft["properties"]["district"]: ft["properties"]["area_sqkm"] for ft in geo["features"]}
 
-# ---------- header ----------
-st.title("🔥 Lebanon Is Burning")
-st.markdown("**Where and when wildfires strike, and what they cost our forests (2012–2025).** "
-            "Satellite fire detections from NASA, matched to every district in Lebanon.")
 
-# ---------- filters (one row) ----------
-c1, c2 = st.columns([1, 1])
+# ---------- page styling (Ember Night) ----------
+st.markdown("""<style>
+.stApp{background:radial-gradient(1200px 520px at 12% -10%,#2a1206 0%,#0E1013 55%);}
+/* force dark even if the theme file is missing or the viewer picked Light */
+.stApp,[data-testid="stAppViewContainer"],[data-testid="stHeader"]{color:#ECE8E1;background-color:#0E1013}
+[data-testid="stHeader"]{background:rgba(14,16,19,.85)}
+.stApp p,.stApp label,.stApp span,.stApp li,.stApp h1,.stApp h2,.stApp h3,.stApp [data-testid="stCaptionContainer"]{color:#ECE8E1}
+.stApp [data-testid="stCaptionContainer"] p{color:#9a948b}
+.stApp [data-baseweb="select"]>div,.stApp [data-baseweb="input"]>div,.stApp [data-testid="stPopover"] button{background:#171A20 !important;border-color:#2A2E36 !important;color:#ECE8E1 !important}
+[data-baseweb="popover"] *,[data-testid="stPopoverBody"]{background-color:#171A20;color:#ECE8E1}
+.stApp [data-testid="stDataFrame"]{filter:invert(.92) hue-rotate(180deg)}
+.stMultiSelect [data-baseweb="select"] div,.stSelectbox [data-baseweb="select"] div{background-color:#171A20 !important;color:#ECE8E1 !important}
+.stSlider [role="slider"]{background-color:#FF6A2B !important}
+.block-container{padding-top:3.6rem;max-width:1500px}
+div[data-testid="stMetric"]{background:#171A20;border:1px solid #2A2E36;border-left:4px solid #FF6A2B;border-radius:14px;padding:14px 18px}
+.stTabs [data-baseweb="tab-list"]{gap:8px}
+.stTabs [data-baseweb="tab"]{background:#171A20;border:1px solid #2A2E36;border-radius:99px;padding:6px 18px;height:auto}
+.stTabs [aria-selected="true"]{background:#FF6A2B;color:#111 !important;border-color:#FF6A2B}
+.stTabs [data-baseweb="tab-highlight"],.stTabs [data-baseweb="tab-border"]{display:none}
+.hero-ov{position:relative;z-index:5;pointer-events:none;height:700px;margin-top:-716px;padding:34px 0 0 34px}
+.hero-ov .tag{display:inline-block;background:rgba(255,106,43,.15);color:#ffb28c;border:1px solid rgba(255,106,43,.45);border-radius:99px;padding:3px 12px;font-size:12px;letter-spacing:1.5px}
+.hero-ov h1{font-size:56px;line-height:1.02;margin:12px 0 8px;font-weight:900;color:#fff;padding:0}
+.hero-ov h1 span{color:#FF6A2B}
+.hero-ov p.sub{font-size:16px;color:#d8cfc6;margin:0;max-width:430px}
+.kgrid{position:absolute;left:34px;bottom:26px;display:grid;grid-template-columns:205px 205px;gap:10px}
+.kc{background:rgba(23,26,32,.85);backdrop-filter:blur(6px);border:1px solid #2A2E36;border-left:4px solid #FF6A2B;border-radius:12px;padding:10px 14px}
+.kc .l{font-size:12px;color:#B9B3AA}.kc .v{font-size:26px;font-weight:800;color:#fff;line-height:1.15}.kc .s{font-size:12px;color:#FF9a6b}
+</style>""", unsafe_allow_html=True)
+
+# ---------- filters (slim row above the hero) ----------
+c1, c2, c3 = st.columns([1.2, 1.2, 0.6])
 yr = c1.slider("Years", 2012, 2025, (2012, 2025))
 govs = sorted(g for g in fires.governorate.dropna().unique() if g != "Beirut")
 gsel = c2.multiselect("Governorates", govs, default=[], placeholder="All governorates")
+with c3.popover("⚙ Map options", use_container_width=True):
+    mode = st.radio("Map shows", ["Animation 2012 → 2025", "One whole year"], key="yy_mode")
+    pick = st.selectbox("Year", list(range(yr[1], yr[0] - 1, -1)), key="yy_year") if mode.startswith("One") else None
+    secs = st.slider("Seconds per year", 6, 12, 8, key="yy_secs") if not mode.startswith("One") else 8
+    wvar = st.radio("Weather at the stations", ["Temperature vs normal", "Rainfall vs normal"], key="yy_w")
+    show_st2 = st.toggle("Show fire stations", value=True, key="st_sat")
 
 d = fires[fires.year.between(*yr) & fires.governorate.isin(gsel or govs) & ~fires.urban_industrial]
 if d.empty:
     st.warning("No fires match these filters.")
     st.stop()
 
-# ---------- KPI tiles ----------
 per_year = d.groupby("year").size()
 by_dist = d.groupby("district").size().sort_values(ascending=False)
-peak_m = d.groupby("month").size().idxmax()
 fl = loss[loss.year.between(*yr)]
-k1, k2, k3, k4 = st.columns(4)
-k1.metric("Fires detected", f"{len(d):,}", help="NASA VIIRS detections, vegetation fires, nominal/high confidence")
-k2.metric("Worst year", f"{per_year.idxmax()}")
-k2.caption(f"{per_year.max():,} fires")
-k3.metric("Most-burned district", by_dist.index[0])
-k3.caption(f"{by_dist.iloc[0]:,} fires")
-k4.metric("Forest lost to fires", f"{fl.loss_from_fires_ha.sum():,.0f} ha")
-k4.caption(f"{100 * fl.loss_from_fires_ha.sum() / fl.tree_cover_loss_ha.sum():.0f}% of all tree cover lost in these years (national)")
 
-tab1, tab0, tab2, tab3, tab4, tab5 = st.tabs(["📍 Where", "▶️ Year by year", "📅 When", "🌡️ Why", "🌲 The cost", "📄 Data"])
+GRAD = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAlgAAAAECAYAAABStUF5AAAAdElEQVR4nO3WwQ2AIBAEQLQAY2L/vdmJNqCieKAhMx+QWw/4MUzzsqZrW6aey5zVjtbvZu/8W/M7olaSi5hHZkvqT9ci87UyJdmWvUrGr3u1yLzp/XReK9vj2dy/jz3+fLYm9x8TAAChPLAAAIJ5YAEABNsBECXgObyvvZoAAAAASUVORK5CYII="  # dark fade behind the hero text
+HEAT = [[0, "rgba(0,0,255,0)"], [0.08, "rgba(40,60,255,0.35)"], [0.25, "rgba(0,200,255,0.55)"],
+        [0.45, "rgba(0,210,90,0.65)"], [0.65, "rgba(255,230,0,0.75)"], [0.82, "rgba(255,140,0,0.85)"],
+        [1, "rgba(230,20,20,0.95)"]]
+MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+LABEL_POS = {"Akkar": "middle right", "Batroun": "middle left", "Metn": "top left",
+             "Chouf": "bottom left", "Zahle (Bekaa)": "middle right"}
+
+
+@st.cache_data(show_spinner="Building the map animation…", max_entries=8)
+def hero_figure(yr, gsel, is_temp, secs, mode, pick, show_st, no_tiles):
+    dd = fires[fires.year.between(*yr) & fires.governorate.isin(list(gsel) or govs) & ~fires.urban_industrial].copy()
+    DIV = [[0, "#1c5cab"], [0.25, "#6da7ec"], [0.5, "#d9d8d2"], [0.75, "#ec835a"], [1, "#d03b3b"]]
+    if not is_temp:
+        DIV = [[0, DIV[4][1]], [0.25, DIV[3][1]], [0.5, DIV[2][1]], [0.75, DIV[1][1]], [1, DIV[0][1]]]
+
+    def station_traces(sy, acol, lim, unit):
+        out = [dict(type="scattermap", lat=sy.lat.tolist(), lon=sy.lon.tolist(), mode="markers",
+                    marker=dict(size=26, color="white"), hoverinfo="skip"),
+               dict(type="scattermap", lat=sy.lat.tolist(), lon=sy.lon.tolist(), mode="markers",
+                    marker=dict(size=21, color=sy[acol].tolist(), colorscale=DIV, cmin=-lim, cmax=lim, showscale=False),
+                    customdata=sy[["site", "temp", "rain", "temp_anom", "rain_anom"]].values.tolist(),
+                    hovertemplate="<b>%{customdata[0]}</b><br>Avg max temp %{customdata[1]:.1f}°C "
+                                  "(%{customdata[3]:+.1f}°C vs normal)<br>Rain %{customdata[2]:.0f} mm "
+                                  "(%{customdata[4]:+.0f} " + unit + " vs normal)<extra></extra>")]
+        for site, pos in LABEL_POS.items():
+            r = sy[sy.site == site]
+            name = site.replace(" (Bekaa)", "")
+            txt = [f"{name} {v:+.1f}°C" if is_temp else f"{name} {v:+.0f} {unit} rain" for v in r[acol]]
+            txt = [f"   {t}" if "right" in pos else f"{t}   " for t in txt]
+            out.append(dict(type="scattermap", lat=r.lat.tolist(), lon=r.lon.tolist(), mode="markers+text",
+                            textposition=pos, text=txt, marker=dict(size=26, color="rgba(0,0,0,0)"),
+                            hoverinfo="skip", textfont=dict(color="white", size=13)))
+        return out
+
+    def heat(pts, zmax):
+        return dict(type="densitymap", lat=pts.latitude.tolist(), lon=pts.longitude.tolist(), radius=16,
+                    colorscale=HEAT, zmin=0, zmax=zmax, zauto=False, showscale=False, hoverinfo="skip")
+
+    frames, menus, sliders = [], [], []
+    if mode.startswith("One"):
+        fy = dd[dd.year == pick]
+        wy = (weather.assign(year=weather.date.dt.year).groupby(["year", "site"])
+              .agg(temp=("temp_max_c", "mean"), rain=("precip_mm", "sum"),
+                   lat=("latitude", "first"), lon=("longitude", "first")).reset_index())
+        wy["temp_anom"] = wy.temp - wy.groupby("site").temp.transform("mean")
+        wy["rain_anom"] = 100 * (wy.rain / wy.groupby("site").rain.transform("mean") - 1)
+        acol = "temp_anom" if is_temp else "rain_anom"
+        sy = wy[wy.year == pick]
+        data = [heat(fy, max(3.0, 0.006 * len(fy))),
+                dict(type="scattermap", lat=fy.latitude.tolist(), lon=fy.longitude.tolist(), mode="markers",
+                     marker=dict(size=5, color="#ffe066", opacity=0.9),
+                     customdata=fy[["district", "acq_date"]].astype(str).values.tolist(),
+                     hovertemplate="Fire in %{customdata[0]}<br>%{customdata[1]}<extra></extra>")] + \
+               station_traces(sy, acol, float(wy[acol].abs().max()), "%")
+        tm, rm = sy.temp_anom.mean(), sy.rain_anom.mean()
+        title = (f"<span style='font-size:40px'><b>{pick}</b></span><br>{len(fy):,} fires · "
+                 f"{'hotter' if tm > 0 else 'cooler'} than normal ({tm:+.1f}°C) · rain {rm:+.0f}% vs normal")
+    else:
+        # weather by month
+        wm = (weather.assign(year=weather.date.dt.year, month=weather.date.dt.month)
+              .groupby(["year", "month", "site"])
+              .agg(temp=("temp_max_c", "mean"), rain=("precip_mm", "sum"),
+                   lat=("latitude", "first"), lon=("longitude", "first")).reset_index())
+        wm["temp_anom"] = wm.temp - wm.groupby(["site", "month"]).temp.transform("mean")
+        wm["rain_anom"] = wm.rain - wm.groupby(["site", "month"]).rain.transform("mean")
+        acol = "temp_anom" if is_temp else "rain_anom"
+        lim = float(wm[acol].abs().quantile(0.98))
+        years = list(range(yr[0], yr[1] + 1))
+        dd["t"] = dd.year * 12 + dd.month - 1
+        origin = pd.Timestamp(yr[0], 1, 1)
+        dd["day"] = (dd.acq_date - origin).dt.days
+        cnt = dd.groupby("t").size()
+        zmax = max(3.0, 0.008 * max(1, len(dd) / len(years)))
+        n_days = (pd.Timestamp(yr[1], 12, 31) - origin).days
+        STEP, FADE = 7, 42              # one frame per week; each fire glows then fades over 6 weeks
+        lat, lon, day = dd.latitude.values, dd.longitude.values, dd.day.values
+        dist_, date_ = dd.district.astype(str).values, dd.acq_date.dt.strftime("%d %b %Y").values
+
+        def dots(D):
+            age = D - day
+            k = (age >= 0) & (age < FADE)
+            a = age[k]
+            size = (4 + 9 * np.exp(-a / 6)).round(1).tolist()
+            op = (0.18 + 0.82 * np.exp(-a / 12)).round(2).tolist()
+            col = np.where(a < 7, "#fff3a0", np.where(a < 21, "#ffb000", "#ff5a1a")).tolist()
+            return dict(type="scattermap", lat=lat[k].tolist(), lon=lon[k].tolist(), mode="markers",
+                        marker=dict(size=size, color=col, opacity=op),
+                        customdata=np.c_[dist_[k], date_[k]].tolist(),
+                        hovertemplate="Fire in %{customdata[0]}<br>%{customdata[1]}<extra></extra>")
+
+        def month_parts(T):
+            y, m = divmod(T, 12)
+            last12 = dd[(dd.t > T - 12) & (dd.t <= T)]
+            sy = wm[(wm.year == y) & (wm.month == m + 1)]
+            tm = sy.temp_anom.mean()
+            sub = (f"{int(cnt.get(T, 0)):,} fires this month · {len(last12):,} in the last 12 months · "
+                   f"{'hotter' if tm > 0 else 'cooler'} than a normal {MONTH_NAMES[m]} ({tm:+.1f}°C)")
+            return heat(last12, zmax), station_traces(sy, acol, lim, "mm"), sub
+
+        n_tr = 2 + 2 + len(LABEL_POS)
+        prevT, sub, steps = None, "", []
+        for k, D in enumerate(range(0, n_days + 1, STEP)):
+            date = origin + pd.Timedelta(days=D)
+            T = date.year * 12 + date.month - 1
+            ttl_head = f"<span style='font-size:40px'><b>{MONTH_NAMES[date.month - 1]} {date.year}</b></span><br>"
+            if T != prevT:
+                h, stn, sub = month_parts(T)
+                fr = dict(name=str(k), data=[h, dots(D)] + stn, traces=list(range(n_tr)),
+                          layout=dict(title=dict(text=ttl_head + sub)))
+                steps.append(dict(label=str(date.year) if date.month == 1 else "", method="animate",
+                                  args=[[str(k)], dict(mode="immediate", frame=dict(duration=0, redraw=True),
+                                                       transition=dict(duration=0))]))
+                prevT = T
+            else:
+                fr = dict(name=str(k), data=[dots(D)], traces=[1], layout=dict(title=dict(text=ttl_head + sub)))
+            frames.append(fr)
+        data = frames[0]["data"]
+        title = frames[0]["layout"]["title"]["text"]
+        ms = int(secs * 1000 * STEP / 365)
+        menus = [dict(type="buttons", direction="left", x=0.022, y=0.585, xanchor="left", yanchor="top",
+                      pad=dict(r=6, t=0), showactive=False, bgcolor="#FF6A2B", bordercolor="#FF6A2B",
+                      font=dict(color="#111111", size=14),
+                      buttons=[dict(label=f"▶  Play {yr[0]} → {yr[1]}", method="animate",
+                                    args=[None, dict(frame=dict(duration=ms, redraw=True),
+                                                     transition=dict(duration=0), fromcurrent=True)]),
+                               dict(label="❚❚", method="animate",
+                                    args=[[None], dict(frame=dict(duration=0, redraw=False),
+                                                       mode="immediate", transition=dict(duration=0))])])]
+        sliders = [dict(active=0, x=0.42, len=0.56, y=0.03, yanchor="bottom", pad=dict(t=0, b=0),
+                        currentvalue=dict(visible=False), ticklen=3, minorticklen=0, bgcolor="#2A2E36",
+                        activebgcolor="#FF6A2B", bordercolor="#3A3F48", font=dict(color="#C9C4BC", size=11),
+                        tickcolor="#5c5852", steps=steps)]
+
+    if show_st:
+        data = data + [dict(type="scattermap", lat=stations.latitude.tolist(), lon=stations.longitude.tolist(),
+                            mode="markers", marker=dict(size=22, color="rgba(0,0,0,0)"),
+                            customdata=stations[["name", "district"]].values.tolist(),
+                            hovertemplate="<b>%{customdata[0]}</b><br>%{customdata[1]} district<extra>Fire station</extra>")]
+    layers = ([] if no_tiles else [
+        dict(sourcetype="raster", below="traces", sourceattribution="Imagery © Esri, Maxar, Earthstar Geographics",
+             source=["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"]),
+        dict(sourcetype="raster", below="traces",
+             source=["https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"])]) + [
+        dict(source=geo_border, type="line", color="#ff4d4d", line=dict(width=2.5, dash=[2, 1.5]), below="traces")
+    ] + (station_layers(0.045) if show_st else [])
+    layout = dict(
+        height=700, margin=dict(l=0, r=0, t=0, b=0), paper_bgcolor="#0E1013", showlegend=False,
+        font=dict(family=FONT, color="#ECE8E1"),
+        title=dict(text=title, x=0.022, xanchor="left", y=0.47, yanchor="top", yref="paper",
+                   font=dict(size=15, color="#ECE8E1")),
+        hoverlabel=dict(bgcolor="#0E1013", font_color="#ECE8E1"),
+        updatemenus=menus, sliders=sliders,
+        images=[dict(source=GRAD, xref='paper', yref='paper', x=0, y=1, sizex=0.62, sizey=1, sizing='stretch', layer='above', xanchor='left', yanchor='top')],
+        map=dict(style="white-bg", center={"lat": 33.82, "lon": 34.75}, zoom=7.35, layers=layers))
+    return dict(data=data, layout=layout, frames=frames)
+
+
+fig_hero = hero_figure(yr, tuple(gsel), wvar.startswith("Temp"), secs, mode, pick, show_st2,
+                       bool(os.environ.get("NO_TILES")))
+st.plotly_chart(fig_hero, width="stretch", config={"displayModeBar": False, "scrollZoom": True}, key="hero")
+
+avg = per_year.mean()
+st.markdown(f"""<div class="hero-ov">
+<div class="tag">NASA SATELLITE DATA · {yr[0]}–{yr[1]}</div>
+<h1>Lebanon Is<br><span>Burning</span></h1>
+<p class="sub">{len(d):,} wildfires detected from space. Where they strike, when, and what they cost our forests.</p>
+<div class="kgrid">
+ <div class="kc"><div class="l">Fires detected</div><div class="v">{len(d):,}</div><div class="s">{len(per_year)} years · ~{avg:,.0f} a year</div></div>
+ <div class="kc"><div class="l">Worst year</div><div class="v">{per_year.idxmax()}</div><div class="s">{per_year.max():,} fires · {per_year.max() / avg:.1f}× the average</div></div>
+ <div class="kc"><div class="l">Most-burned district</div><div class="v">{by_dist.index[0]}</div><div class="s">{by_dist.iloc[0]:,} fires</div></div>
+ <div class="kc"><div class="l">Forest lost to fires</div><div class="v">{fl.loss_from_fires_ha.sum():,.0f} ha</div><div class="s">{100 * fl.loss_from_fires_ha.sum() / fl.tree_cover_loss_ha.sum():.0f}% of all tree loss (national)</div></div>
+</div></div>""", unsafe_allow_html=True)
+if mode.startswith("One"):
+    st.caption(f"Every fire detected in {pick} is a yellow dot; the glow shows where they cluster. Circles are the 5 weather stations "
+               "(red = hotter/drier than normal, blue = cooler/wetter). Satellite imagery: Esri.")
+else:
+    st.caption("Press Play: the map moves one week at a time. Each fire flares up bright yellow when detected, then cools to orange and fades "
+               "over six weeks, so fires flow rather than jump. The glow = all fires in the last 12 months. Circles are the 5 weather stations "
+               "(red = hotter/drier than normal for the month, blue = cooler/wetter). Satellite imagery: Esri.")
+
+tab_where, tab_when, tab_why, tab_cost, tab_data = st.tabs(["📍 Where", "📅 When", "🌡️ Why", "🌲 The cost", "📄 Data"])
 
 # ---------- WHERE ----------
-with tab1:
+# ---------- WHERE ----------
+with tab_where:
     st.subheader("Akkar, the Chouf and the South burn most")
     dens = (by_dist.rename("fires").reset_index()
             .assign(per_100km2=lambda x: 100 * x.fires / x.district.map(area)))
@@ -127,8 +331,8 @@ with tab1:
                                         zmin=0, zmax=zmax, zauto=False, showscale=True, hoverinfo="skip",
                                         colorbar=dict(title="Fire density", thickness=10, len=0.5,
                                                       tickvals=[0, zmax], ticktext=["Few", "Many"])))
-            base_layers = [dict(source=geo_border, type="line", color="#555555", line=dict(width=1.5), below="traces")]
-            m.update_layout(map=dict(style="white-bg" if os.environ.get("NO_TILES") else "carto-voyager",
+            base_layers = [dict(source=geo_border, type="line", color="#9a948b", line=dict(width=1.5), below="traces")]
+            m.update_layout(map=dict(style="white-bg" if os.environ.get("NO_TILES") else "carto-darkmatter",
                                      center={"lat": 33.85, "lon": 35.85}, zoom=7.0, layers=base_layers))
         else:
             base_layers = []
@@ -139,8 +343,8 @@ with tab1:
                                   hover_data={"fires": ":,", "per_100km2": ":.1f", "district": False},
                                   hover_name="district", labels={"per_100km2": "Fires / 100 km²", "fires": "Fires"},
                                   range_color=(0, 250) if col == "per_100km2" else None,
-                                  map_style="white-bg", center={"lat": 33.88, "lon": 35.85}, zoom=6.9, opacity=0.9)
-            m.update_traces(marker_line_color="white", marker_line_width=1)
+                                  map_style="white-bg" if os.environ.get("NO_TILES") else "carto-darkmatter", center={"lat": 33.88, "lon": 35.85}, zoom=6.9, opacity=0.9)
+            m.update_traces(marker_line_color="#0E1013", marker_line_width=1)
             pts = d
             m.add_trace(go.Scattermap(lat=pts.latitude, lon=pts.longitude, mode="markers", name="Fire",
                                       marker=dict(size=4, color=INK, opacity=0.35), hoverinfo="skip"))
@@ -168,160 +372,8 @@ with tab1:
         st.plotly_chart(style(bar, 520), width="stretch")
 
 
-# ---------- YEAR BY YEAR (animated satellite map) ----------
-with tab0:
-    st.subheader("Watch fires and weather move through time")
-    c1, c2, c3 = st.columns([1.3, 1.1, 1])
-    mode = c1.radio("Show", ["Animation, month by month", "One whole year"], horizontal=True, key="yy_mode")
-    wvar = c2.radio("Weather at the stations", ["Temperature vs normal", "Rainfall vs normal"], horizontal=True, key="yy_w")
-    years = list(range(yr[0], yr[1] + 1))
-    if mode.startswith("One"):
-        pick = c3.selectbox("Year", years[::-1], key="yy_year")
-    else:
-        secs = c3.slider("Seconds per year", 7, 10, 8, key="yy_secs",
-                         help="How long each year takes to play. Each month is one step.")
-    show_st2 = st.toggle("Show fire stations", value=True, key="st_sat")
-    is_temp = wvar.startswith("Temp")
-    MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-    HEAT = [[0, "rgba(0,0,255,0)"], [0.08, "rgba(40,60,255,0.35)"], [0.25, "rgba(0,200,255,0.55)"],
-            [0.45, "rgba(0,210,90,0.65)"], [0.65, "rgba(255,230,0,0.75)"], [0.82, "rgba(255,140,0,0.85)"],
-            [1, "rgba(230,20,20,0.95)"]]
-    # diverging: blue (cooler / wetter) <-> grey <-> red (hotter / drier)
-    DIV = [[0, "#1c5cab"], [0.25, "#6da7ec"], [0.5, "#d9d8d2"], [0.75, "#ec835a"], [1, "#d03b3b"]]
-    if not is_temp:
-        DIV = [[0, DIV[4][1]], [0.25, DIV[3][1]], [0.5, DIV[2][1]], [0.75, DIV[1][1]], [1, DIV[0][1]]]
-    LABEL_POS = {"Akkar": "middle right", "Batroun": "middle left", "Metn": "top left",
-                 "Chouf": "bottom left", "Zahle (Bekaa)": "middle right"}
-
-    def station_traces(sy, acol, lim, unit):
-        """White ring + station circle coloured by weather vs normal + one label per station."""
-        ring = go.Scattermap(lat=sy.lat, lon=sy.lon, mode="markers", marker=dict(size=26, color="white"), hoverinfo="skip")
-        stn = go.Scattermap(lat=sy.lat, lon=sy.lon, mode="markers",
-                            marker=dict(size=21, color=sy[acol], colorscale=DIV, cmin=-lim, cmax=lim, showscale=False),
-                            customdata=sy[["site", "temp", "rain", "temp_anom", "rain_anom"]],
-                            hovertemplate="<b>%{customdata[0]}</b><br>Avg max temp %{customdata[1]:.1f}°C "
-                                          "(%{customdata[3]:+.1f}°C vs normal)<br>Rain %{customdata[2]:.0f} mm "
-                                          "(%{customdata[4]:+.0f} " + unit + " vs normal)<extra></extra>")
-        labels = []
-        for site, pos in LABEL_POS.items():
-            r = sy[sy.site == site]
-            name = site.replace(" (Bekaa)", "")
-            txt = [f"{name} {v:+.1f}°C" if is_temp else f"{name} {v:+.0f} {unit} rain" for v in r[acol]]
-            txt = [f"   {t}" if "right" in pos else f"{t}   " for t in txt]
-            labels.append(go.Scattermap(lat=r.lat, lon=r.lon, mode="markers+text", textposition=pos, text=txt,
-                                        marker=dict(size=26, color="rgba(0,0,0,0)"), hoverinfo="skip",
-                                        textfont=dict(color="white", size=13)))
-        return [ring, stn, *labels]
-
-    def fire_dots(fx, size, color, opacity, hover=True):
-        return go.Scattermap(lat=fx.latitude, lon=fx.longitude, mode="markers",
-                             marker=dict(size=size, color=color, opacity=opacity),
-                             customdata=fx[["district", "acq_date"]].astype(str) if hover else None,
-                             hovertemplate="Fire in %{customdata[0]}<br>%{customdata[1]}<extra></extra>" if hover else None,
-                             hoverinfo=None if hover else "skip")
-
-    if mode.startswith("One"):
-        # ---- one whole year: every fire of that year + weather for the whole year ----
-        fy = d[d.year == pick]
-        wy = (weather.assign(year=weather.date.dt.year).groupby(["year", "site"])
-              .agg(temp=("temp_max_c", "mean"), rain=("precip_mm", "sum"),
-                   lat=("latitude", "first"), lon=("longitude", "first")).reset_index())
-        wy["temp_anom"] = wy.temp - wy.groupby("site").temp.transform("mean")
-        wy["rain_anom"] = 100 * (wy.rain / wy.groupby("site").rain.transform("mean") - 1)
-        acol = "temp_anom" if is_temp else "rain_anom"
-        lim = float(wy[acol].abs().max())
-        sy = wy[wy.year == pick]
-        zmax = max(3.0, 0.006 * len(fy))
-        traces = [go.Densitymap(lat=fy.latitude, lon=fy.longitude, radius=16, colorscale=HEAT, zmin=0, zmax=zmax,
-                                zauto=False, showscale=False, hoverinfo="skip"),
-                  fire_dots(fy, 5, "#ffe066", 0.9)] + station_traces(sy, acol, lim, "%")
-        t_mean, r_mean = sy.temp_anom.mean(), sy.rain_anom.mean()
-        title = (f"<b>{pick}</b> · {len(fy):,} fires · {'hotter' if t_mean > 0 else 'cooler'} than normal "
-                 f"({t_mean:+.1f}°C) · rain {r_mean:+.0f}% vs normal")
-        frames, menus, sliders = [], [], []
-    else:
-        # ---- animation: one frame per month; the heat map is a rolling 12 months so it flows, never resets ----
-        wm = (weather.assign(year=weather.date.dt.year, month=weather.date.dt.month)
-              .groupby(["year", "month", "site"])
-              .agg(temp=("temp_max_c", "mean"), rain=("precip_mm", "sum"),
-                   lat=("latitude", "first"), lon=("longitude", "first")).reset_index())
-        wm["temp_anom"] = wm.temp - wm.groupby(["site", "month"]).temp.transform("mean")
-        wm["rain_anom"] = wm.rain - wm.groupby(["site", "month"]).rain.transform("mean")
-        acol = "temp_anom" if is_temp else "rain_anom"
-        lim = float(wm[acol].abs().quantile(0.98))
-        dm = d.assign(t=d.year * 12 + d.month - 1)
-        steps_t = [y * 12 + m for y in years for m in range(12)]
-        avg12 = max(1, len(dm) / max(1, len(years)))
-        zmax = max(3.0, 0.008 * avg12)
-        cnt = dm.groupby("t").size()
-
-        def frame_data(t):
-            y, m = divmod(t, 12)
-            last12 = dm[(dm.t > t - 12) & (dm.t <= t)]
-            now, prev1, prev2 = dm[dm.t == t], dm[dm.t == t - 1], dm[dm.t == t - 2]
-            sy = wm[(wm.year == y) & (wm.month == m + 1)]
-            tr = [go.Densitymap(lat=last12.latitude, lon=last12.longitude, radius=16, colorscale=HEAT,
-                                zmin=0, zmax=zmax, zauto=False, showscale=False, hoverinfo="skip"),
-                  fire_dots(prev2, 4, "#ff8c1a", 0.35, hover=False),
-                  fire_dots(prev1, 5, "#ffb000", 0.6, hover=False),
-                  fire_dots(now, 8, "#fff3a0", 1.0)] + station_traces(sy, acol, lim, "mm")
-            tm = sy.temp_anom.mean()
-            ttl = (f"<b>{MONTH_NAMES[m]} {y}</b> · {int(cnt.get(t, 0)):,} fires this month · "
-                   f"{int(last12.shape[0]):,} in the last 12 months · "
-                   f"{'hotter' if tm > 0 else 'cooler'} than a normal {MONTH_NAMES[m]} ({tm:+.1f}°C)")
-            return tr, ttl
-
-        traces, title = frame_data(steps_t[0])
-        frames = []
-        for t in steps_t:
-            tr, ttl = frame_data(t)
-            frames.append(go.Frame(data=tr, name=str(t), layout=go.Layout(title_text=ttl)))
-        ms = int(secs * 1000 / 12)
-        menus = [dict(type="buttons", direction="left", x=1, y=1.0, xanchor="right", yanchor="bottom",
-                      pad=dict(r=8, t=8), showactive=False,
-                      buttons=[dict(label="▶ Play", method="animate",
-                                    args=[None, dict(frame=dict(duration=ms, redraw=True),
-                                                     transition=dict(duration=0), fromcurrent=True)]),
-                               dict(label="❚❚ Pause", method="animate",
-                                    args=[[None], dict(frame=dict(duration=0, redraw=False),
-                                                       mode="immediate", transition=dict(duration=0))])])]
-        sliders = [dict(active=0, x=0, len=1, y=-0.02, yanchor="top", pad=dict(t=10),
-                        currentvalue=dict(visible=False), ticklen=3, minorticklen=0,
-                        steps=[dict(label=str(t // 12) if t % 12 == 0 else "", method="animate",
-                                    args=[[str(t)], dict(mode="immediate", frame=dict(duration=0, redraw=True),
-                                                         transition=dict(duration=0))]) for t in steps_t])]
-
-    sat = go.Figure(data=traces + ([station_hover()] if show_st2 else []))
-    sat.frames = frames
-    sat.update_layout(
-        title=title, showlegend=False, updatemenus=menus, sliders=sliders,
-        map=dict(
-            style="white-bg", center={"lat": 33.9, "lon": 35.85}, zoom=7.4,
-            layers=([] if os.environ.get("NO_TILES") else [
-                # satellite imagery (Esri World Imagery) + place-name labels, like Google satellite view
-                dict(sourcetype="raster", below="traces", sourceattribution="Imagery © Esri, Maxar, Earthstar Geographics",
-                     source=["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"]),
-                dict(sourcetype="raster", below="traces",
-                     source=["https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"])]) + [
-                # Lebanon's border, dashed red like Google Maps
-                dict(source=geo_border, type="line", color="#ff4d4d", line=dict(width=2.5, dash=[2, 1.5]), below="traces"),
-            ] + (station_layers(0.045) if show_st2 else [])))
-    st.plotly_chart(style(sat, 720).update_layout(margin=dict(l=8, r=8, t=80, b=90 if frames else 20)), width="stretch")
-    if mode.startswith("One"):
-        k = "Red = hotter than that station's 2012–2025 average for the year, blue = cooler." if is_temp else \
-            "Red = drier than that station's 2012–2025 average for the year, blue = wetter."
-        st.caption(f"Every fire detected in {pick} is shown as a yellow dot; the heat glow shows where they cluster. "
-                   f"Circles are the 5 weather stations. {k} Satellite imagery: Esri.")
-    else:
-        k = "Red = hotter than normal for that month, blue = cooler." if is_temp else \
-            "Red = drier than normal for that month, blue = wetter (mm difference)."
-        st.caption("Press Play: each step is one month. Bright yellow dots = fires this month, fading orange = the two months before; "
-                   f"the heat glow = all fires in the last 12 months, so it builds and fades instead of resetting each year. "
-                   f"Circles are the 5 weather stations. {k} Satellite imagery: Esri.")
-
-
 # ---------- WHEN ----------
-with tab2:
+with tab_when:
     st.subheader(f"Fire season runs June to October and peaks in {['January','February','March','April','May','June','July','August','September','October','November','December'][d.groupby('month').size().idxmax() - 1]}")
     hm = d.pivot_table(index="year", columns="month", values="frp", aggfunc="size").reindex(columns=range(1, 13)).fillna(0)
     h = go.Figure(go.Heatmap(z=hm.values, x=MONTHS, y=hm.index.astype(str), colorscale=FIRE_RAMP, xgap=2, ygap=2,
@@ -339,7 +391,7 @@ with tab2:
     st.plotly_chart(style(ln, 300), width="stretch")
 
 # ---------- WHY ----------
-with tab3:
+with tab_why:
     st.subheader("Hot, dry months bring fire")
     w = weather[weather.date.dt.year.between(*yr)]
     wm = (w.assign(year=w.date.dt.year, month=w.date.dt.month)
@@ -364,7 +416,7 @@ with tab3:
     st.caption("Weather is the average of 5 sites (Akkar, Batroun, Metn, Chouf, Zahle) from Open-Meteo. Correlation is not causation: most fires are still started by people.")
 
 # ---------- COST ----------
-with tab4:
+with tab_cost:
     st.subheader("Since 2019, fires eat a much bigger share of our forests")
     fl2 = loss.assign(other=loss.tree_cover_loss_ha - loss.loss_from_fires_ha)
     st_ = go.Figure()
@@ -387,7 +439,7 @@ with tab4:
     st.caption("Source: Global Forest Watch (University of Maryland), tree cover with ≥30% canopy.")
 
 # ---------- DATA ----------
-with tab5:
+with tab_data:
     st.dataframe(d[["acq_date", "governorate", "district", "cadastral_area", "latitude", "longitude", "frp", "confidence"]],
                  width="stretch", hide_index=True)
     st.download_button("Download filtered fires (CSV)", d.to_csv(index=False), "lebanon_fires_filtered.csv", "text/csv")
