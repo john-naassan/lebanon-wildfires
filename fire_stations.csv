@@ -1,19 +1,206 @@
-osm_id,name,governorate,district,latitude,longitude
-559975264,Beirut Fire Brigade,Beirut,Beirut,33.87547,35.49824
-1240694307,Tripoli Fire Station,North,Tripoli,34.43827,35.83938
-1888088157,Civil Defence – Chouf,Mount Lebanon,Chouf,33.66695,35.48943
-2245320539,Fire Station – Baabda,Mount Lebanon,Baabda,33.86728,35.52469
-3096663032,Civil Defence – Hadath,Mount Lebanon,Baabda,33.83143,35.53025
-4058561889,Civil Defence – Akkar,Akkar,Akkar,34.63459,36.36414
-4759591838,Civil Defence – Beit Mery,Mount Lebanon,El Meten,33.85703,35.60109
-5444297227,Fire Station – El Meten,Mount Lebanon,El Meten,33.92904,35.67291
-5596132638,Fire Station – Aley,Mount Lebanon,Aley,33.82016,35.49143
-6052906818,Bachoura Fire Station,Beirut,Beirut,33.89185,35.5017
-7930789032,Civil Defence – Zahle,Bekaa,Zahle,33.7706,35.90133
-8002842185,Karantina Fire Station,Beirut,Beirut,33.89923,35.53028
-8244775089,Civil Defence – Zahle,Bekaa,Zahle,33.7709,35.90129
-342915950,Civil Defence – Deir el Qamar,Mount Lebanon,Chouf,33.69641,35.5547
-704057210,Fire Station – Marjaayoun,El Nabatieh,Marjaayoun,33.33346,35.571
-1019834812,Fire Station – Sour,South,Sour,33.2102,35.29722
-1337014761,Fire Station – Sour,South,Sour,33.21024,35.29771
-1462845662,Fire Station – Saida,South,Saida,33.56648,35.3749
+fid,name,name_ar,district,caza,governorate,phone,latitude,longitude
+1,Chadra,شدرا,Akkar,Akkar,Akkar,06/800325,34.6171390000649,36.3223060002218
+2,Mrah El khaoukh,مراح الخوخ,Akkar,Akkar,Akkar,06/850225,34.5859689997696,36.3488890003272
+3,Mounjez,منجز,Akkar,Akkar,Akkar,06/855225,34.6175690001093,36.2481669996074
+4,Aandqet,عندقت,Akkar,Akkar,Akkar,06/880525,34.5854690000943,36.3060000001
+5,El Haissa,الحيصة,Akkar,Akkar,Akkar,06/810925,34.5946390002897,36.0645560003592
+6,El Tleil,التليل,Akkar,Akkar,Akkar,06/845425,34.5948890001273,36.1453890003022
+7,Qobayat,قبيات,Akkar,Akkar,Akkar,06/350204,34.5747939997433,36.2797740002699
+8,Bire,البيرة,Akkar,Akkar,Akkar,06/830525,34.5845109999827,36.2291110003724
+9,Deir Jannine,دير جنين,Akkar,Akkar,Akkar,06/835375,34.5651110001726,36.1768889996277
+10,Aakkar El-Aatiqa,عكار العتيقة,Akkar,Akkar,Akkar,06/885425,34.5259720002077,36.2400280001921
+11,Al Aabde,العبدة,Akkar,Akkar,Akkar,06/471225,34.5201109997229,35.9804440002904
+12,Bezbina,بزبينا,Akkar,Akkar,Akkar,06/361105,34.5171109998728,36.1754170000945
+13,Bqerzla,بقرزلا,Akkar,Akkar,Akkar,06/805325,34.5098329996932,36.0545559996597
+14,El Qasr,القصر,El Hermel,Hermel,Baalback Hermel,08/206125,34.4806110001975,36.4421670004068
+15,Hermel,الهرمل,El Hermel,Hermel,Baalback Hermel,08/200125,34.3969999998502,36.387167000157
+16,El Minie,المنية,El Minieh-Dennie,Minieh-Danieh,North,06/462225,34.4811109998728,35.9364169997448
+17,Sadqa,سدقة,Akkar,Akkar,Akkar,06/895225,34.4654170000945,36.1516500003473
+18,Berqayel,برقايل,Akkar,Akkar,Akkar,06/370225,34.4777499995629,36.0259170000696
+19,Tripoli,طرابلس,Tripoli,Tripoli,North,06/441701,34.4390720001727,35.8375019996176
+20,El Beddaoui,البداوي,El Minieh-Dennie,Minieh-Danieh,North,06/385125,34.4531940003029,35.8723329996682
+21,El Qaa,القاع,Baalbek,Baalbek,Baalback Hermel,08/225238,34.3414999999251,36.4801110001226
+22,El Sfire,السفيرة,El Minieh-Dennie,Minieh-Danieh,North,06/265125,34.3992500001874,36.0514890003172
+23,Zgharta,زغرتا,Zgharta,Zgharta,North,06/667125,34.3998859998391,35.8910199998732
+24,Sir Ed-Danniy,سير الضنية,El Minieh-Dennie,Minieh-Danieh,North,06/490425,34.386998,36.028816
+25,Dedde,دده,El Koura,Koura,North,06/405925,34.3810239996579,35.802172999984
+26,Enfeh,أنفة,El Koura,Koura,North,06/543125,34.3425000001749,35.7319170003693
+27,Mezyara,مزيارة,Zgharta,Zgharta,North,06/571125,34.3375630000325,35.9221189995922
+28,Ras Baalback,رأس بعلبك,Baalbek,Baalbek,Baalback Hermel,08/210625,34.2601670003069,36.4181889999224
+29,Amioun,أميون,El Koura,Koura,North,06/953125,34.3006189996672,35.8195279999173
+30,Ehden,إهدن,Zgharta,Zgharta,North,06/561625,34.290943999566,35.9580829997307
+31,Bcharre,بشري,Bcharre,Bcharre,North,06/671664,34.2507610000202,36.0028330003427
+32,Ras Nhash,راس نحاش,El Batroun,Batroun,North,06/921225,34.2846689997746,35.7179500001924
+33,Qnat,قنات,Bcharre,Bcharre,North,06/978225,34.2532220001952,35.89900000005
+34,Hadath Ej-Jebbe,حدث الجبة,Bcharre,Bcharre,North,06/980125,34.2480560002842,35.9295830002553
+35,Hasroun,حصرون,Bcharre,Bcharre,North,06/590125,34.2388330003428,35.9766940000281
+36,Hardine,حردين,El Batroun,Batroun,North,06/770125,34.2369590002577,35.856204999661
+37,Kfifane,كفيفان,El Batroun,Batroun,North,06/720825,34.2255159995637,35.7265849999978
+38,Ainata,عيناتا,Baalbek,Baalbek,Baalback Hermel,08/315225,34.1865280002671,36.0810280000422
+39,Aarsal,عرسال,Baalbek,Baalbek,Baalback Hermel,08/240625,34.179194000203,36.4206389995902
+40,Laboue,اللبوة,Baalbek,Baalbek,Baalback Hermel,08/230625,34.1967779999048,36.3532219995956
+41,Douma,دوما,El Batroun,Batroun,North,06/520125,34.2046670003818,35.841667000132
+42,Bcheaali,بشعلة,El Batroun,Batroun,North,06/715425,34.2022430001144,35.8267369996129
+43,Tannourine,تنورين,El Batroun,Batroun,North,06/500725,34.1814720000328,35.9013389999949
+44,Barqa,برقا,Baalbek,Baalbek,Baalback Hermel,08/321125,34.1713059997721,36.1421110002225
+45,Aalali,العلالي,El Batroun,Batroun,North,06/580225,34.2055950000093,35.7719160004231
+46,Bejje,بجه,Jbeil,Jubail,Mount Lebanon,09/770125,34.1808700001504,35.7138010004159
+47,Tartij,ترتج,Jbeil,Jubail,Mount Lebanon,06/715325,34.1833330004177,35.8241669998072
+48,Jaj,جاج,Jbeil,Jubail,Mount Lebanon,09/725220,34.1664440003903,35.8050559998346
+49,Aaqoura,العاقورة,Jbeil,Jubail,Mount Lebanon,09/439635,34.1217780000547,35.9032499999876
+50,Bechouat,بشوات,Baalbek,Baalbek,Baalback Hermel,08/321225,34.1494439997409,36.1359860001538
+51,Deir El-Ahmar,دير الأحمر,Baalbek,Baalbek,Baalback Hermel,08/320176,34.1247220000203,36.1328060000969
+52,Younine,يونين,Baalbek,Baalbek,Baalback Hermel,08/305425,34.0775829998556,36.2750279999423
+53,Jbail,جبيل,Jbeil,Jubail,Mount Lebanon,09/541986,34.1205479999903,35.6491320003416
+54,Annaya,عنايا,Jbeil,Jubail,Mount Lebanon,09/760425,34.1121110003224,35.7489170001195
+55,Qartaba,قرطبا,Jbeil,Jubail,Mount Lebanon,09/405595,34.0951669995574,35.8414439997409
+56,Bouday,بوداي,Baalbek,Baalbek,Baalback Hermel,08/300225,34.0611940004028,36.0639999999001
+57,al Aaqaibe,العقيبة,Kesrwane,Kasrouane,Mount Lebanon,09/447125,34.0549169996199,35.6387219996207
+58,Hrajel,حراجل,Kesrwane,Kasrouane,Mount Lebanon,09/322125,34.0134169995949,35.7863889996527
+59,Hadath Baalbek,حدث بعلبك,Baalbek,Baalbek,Baalback Hermel,08/331125,33.9993609998103,36.0276669998322
+60,Baalbek,بعلبك,Baalbek,Baalbek,Baalback Hermel,08/371422,34.0046669998822,36.2111939997034
+61,Faraya ouyoun l siman,فاريا عيون السيمان,Kesrwane,Kasrouane,Mount Lebanon,09/341125,33.9947100002664,35.8360209996695
+62,El Kfour,الكفور,Kesrwane,Kasrouane,Mount Lebanon,09/780225,34.0357190001318,35.6978729997392
+63,Ghosta,غوسطا,Kesrwane,Kasrouane,Mount Lebanon,09/261125,33.9866109999977,35.6712220000953
+64,Jounieh,جونية,Kesrwane,Kasrouane,Mount Lebanon,09/933325,33.9872649995801,35.6400190000768
+65,Rayfoun,ريفون,Kesrwane,Kasrouane,Mount Lebanon,09/951521,33.9774399997562,35.7030090000654
+66,Zouk Mkayel,ذوق مكايل,Kesrwane,Kasrouane,Mount Lebanon,09/216125,33.9685309999058,35.6237780002546
+67,Jeita,جعيتا,Kesrwane,Kasrouane,Mount Lebanon,09/231125,33.9548149996126,35.6305010000212
+68,Chmistar,شمسطار,Baalbek,Baalbek,Baalback Hermel,08/330825,33.9639999996003,36.0183780004444
+69,Baskinta,بسكنتا,El Meten,El Metn,Mount Lebanon,04/252125,33.9446670001819,35.7842610004449
+70,El Mtein,المتين,El Meten,El Metn,Mount Lebanon,04/295125,33.8918099998316,35.7402790001757
+71,Brital,بريتال,Baalbek,Baalbek,Baalback Hermel,08/340625,33.9347669995974,36.1482500000375
+72,Faqra,فقرا,Kesrwane,Kasrouane,Mount Lebanon,09/712125,33.998744,35.809448
+73,Kfar Aaqab,كفر عقاب,El Meten,El Metn,Mount Lebanon,04/280125,33.9457220002702,35.7448610001351
+74,Beit Chabab,بيت شباب,El Meten,El Metn,Mount Lebanon,04/982125,33.929168000403,35.6726920004355
+75,Mazraat Yachouaa,مزرعة يشوع,El Meten,El Metn,Mount Lebanon,04/919125,33.9335100000865,35.6272219998954
+76,Qornet Chehouane,قرنة شهوان,El Meten,El Metn,Mount Lebanon,04/910305,33.9227500003123,35.6207780004045
+77,Bteghrine,بتغرين,El Meten,El Metn,Mount Lebanon,04/271125,33.9274999999251,35.7507999997202
+78,Bednayel,بدنايل,Baalbek,Baalbek,Baalback Hermel,08/910140,33.9121390002147,36.0140830002303
+79,Dhour Choueir,ضهور الشوير,El Meten,El Metn,Mount Lebanon,04/392210,33.9116229998016,35.7090160000884
+80,Bikfaya,بكفيا,El Meten,El Metn,Mount Lebanon,04/984125,33.9201320000918,35.6802710001066
+81,Antelias,أنطلياس,El Meten,El Metn,Mount Lebanon,04/405125,33.9145590002977,35.5913080002641
+82,Srriine,سرعين,Baalbek,Baalbek,Baalback Hermel,08/335425,33.8838390000698,36.0785000003748
+83,Nabi Chit,النبي شيت,Baalbek,Baalbek,Baalback Hermel,08/335725,33.8722780002296,36.1128329999431
+84,Bsalim,بصاليم,El Meten,El Metn,Mount Lebanon,04/716125,33.8991530003108,35.6029930004267
+85,Mar Moussa,مار موسى,El Meten,El Metn,Mount Lebanon,04/977125,33.9012170001645,35.6889769995889
+86,Baabdat,بعبدات,El Meten,El Metn,Mount Lebanon,04/821125,33.8902099997917,35.6686749995516
+87,Jdaideh,جديده,El Meten,El Metn,Mount Lebanon,01/902125,33.8923779999448,35.5619109998928
+88,Ras Beirut,رأس بيروت,Beirut,Beirut,Beirut,01/862125,33.8923549997835,35.4753249999488
+89,Bachoura,الباشورة,Beirut,Beirut,Beirut,01/663125,33.8922729995993,35.5017239996629
+90,Qaa el Rim,قاع الريم,Zahle,Zahle,Bekaa,08/805125,33.8782009999762,35.8780050004305
+91,Sed el Baouchriye,سد البوشرية,El Meten,El Metn,Mount Lebanon,01/511125,33.8865279999673,35.5538060002468
+92,Dekwaneh,الدكوانة,El Meten,El Metn,Mount Lebanon,01/499125,33.8819740003999,35.5436779999398
+93,Bourj Hammoud,برج حمود,El Meten,El Metn,Mount Lebanon,01/243125,33.8888439997509,35.5467030000435
+94,Broumana,برمانا,El Meten,El Metn,Mount Lebanon,04/865125,33.8829529996813,35.6275790001708
+95,Ghbayri,الغبيري,Baabda,Baabda,Mount Lebanon,01/548125,33.8660730000689,35.5114749996716
+96,Tarik el matar Ghbayri,طريق المطار الغبيري,Baabda,Baabda,Mount Lebanon,01/834125,33.8598499999775,35.5040190002767
+97,Beit mery,بيت مري,El Meten,El Metn,Mount Lebanon,04/873125,33.85720000008,35.6006169996749
+98,Mansourieh,منصورية,El Meten,El Metn,Mount Lebanon,04/531970,33.8574279998024,35.5669510002885
+99,Zahleh,زحلة,Zahle,Zahle,Bekaa,08/822222,33.842785999974,35.9173190003716
+100,Ras el Meten,راس المتن,Baabda,Baabda,Mount Lebanon,05/380525,33.8490920002956,35.6590099999116
+101,Rayak,رياق,Zahle,Zahle,Bekaa,08/901925,33.8489720001577,36.0115830000555
+102,Jdita,جديتا,Zahle,Zahle,Bekaa,08/542688,33.8223059998221,35.8390829996807
+103,Hammana,حمانا,Baabda,Baabda,Mount Lebanon,05/532125,33.8246109999977,35.7363329998681
+104,Aaley,عاليه,Aley,Aley,Mount Lebanon,05/555840,33.8100830000305,35.6152780003795
+105,Ras El-Href,راس الحرف,Baabda,Baabda,Mount Lebanon,05/263125,33.813805999947,35.6730829995808
+106,Qab elias,قب الياس,Zahle,Zahle,Bekaa,08/501872,33.792138999915,35.8223050002756
+107,Bhamdoun,بحمدون,Aley,Aley,Mount Lebanon,05/260125,33.7952219999954,35.6497219996706
+108,Saoufar,صوفر,Aley,Aley,Mount Lebanon,05/291125,33.802330999576,35.697028000342
+109,Bar elias,بر الياس,Zahle,Zahle,Bekaa,08/510025,33.7708609998353,35.90123899988
+110,Aaramoun,عرمون,Aley,Aley,Mount Lebanon,05/411025,33.7606890001973,35.5241549998534
+111,Aain Zhalta,عين زحلتا,Chouf,Chouf,Mount Lebanon,05/230125,33.7428329996433,35.7005999995903
+112,Richmaiya,رشميا,Aley,Aley,Mount Lebanon,05/280125,33.7415829995558,35.6135560001094
+113,Binnay,البنيه,Aley,Aley,Mount Lebanon,05/210625,33.7345610003899,35.5445279995676
+114,Aamiq,عميق,West Bekaa,West Bekaa,Bekaa,08/566625,33.7133350000103,35.7685519999749
+115,El Bire,البيرة الشوف,Chouf,Chouf,Mount Lebanon,05/250125,33.7218620002312,35.6377400002009
+116,Damour,الدامور,Chouf,Chouf,Mount Lebanon,05/602125,33.7308890001273,35.4501500000225
+117,Masnaa,المصنع,Zahle,Zahle,Bekaa,08/622625,33.7031940000031,35.9238060000469
+118,Bchtfine,بشتفين,Chouf,Chouf,Mount Lebanon,05/340325,33.7065560003592,35.5467779999048
+119,Deir El-Qamar,دير القمر,Chouf,Chouf,Mount Lebanon,05/511225,33.6965830000055,35.5550000004497
+120,Baaqline,بعقلين,Chouf,Chouf,Mount Lebanon,05/507951,33.6869170003193,35.5844830002903
+121,Dibbiyeh,الدبية,Chouf,Chouf,Mount Lebanon,07/985325,33.6669199999581,35.4893609997104
+122,Ghazze,غزة,West Bekaa,West Bekaa,Bekaa,08/640030,33.6671450004414,35.8253129995953
+123,Manara,المنارة,West Bekaa,West Bekaa,Bekaa,08/563012,33.6596700001704,35.8858060004466
+124,Joub jennine,جب جنين,West Bekaa,West Bekaa,Bekaa,08/660488,33.6305000003747,35.7707499997128
+125,Barja,برجا,Chouf,Chouf,Mount Lebanon,07/623440,33.6513389999949,35.4449719995582
+126,Mtoulleh,المطلة,Chouf,Chouf,Mount Lebanon,07/980125,33.609971999808,35.5424999995754
+127,Chhim,شحيم,Chouf,Chouf,Mount Lebanon,07/241125,33.6309440001655,35.4939720001078
+128,Aamatour,عماطور,Chouf,Chouf,Mount Lebanon,05/311125,33.6312499998876,35.6070830001804
+129,Saghbine,صغبين,West Bekaa,West Bekaa,Bekaa,08/671125,33.6115279996175,35.6993890004021
+130,yanta,ينطا,Rachaya,Rachiaya,Bekaa,08/525350,33.6054439996409,35.9457500002624
+131,Niha,نيحا,Chouf,Chouf,Mount Lebanon,05/330125,33.6013430002793,35.6308410004119
+132,Rafid,الرفيد,Rachaya,Rachiaya,Bekaa,08/560024,33.5744520003596,35.8283939995835
+133,Bkassine,بكاسين,Jezzine,Jezzine,South,07/801125,33.568653000036,35.5750929998421
+134,Saida,صيدا,Saida,Saida,South,07/720058,33.5663889999524,35.3753890004021
+135,Roum,روم,Jezzine,Jezzine,South,07/811125,33.5547500001124,35.5305000001749
+136,Jezzine,جزين,Jezzine,Jezzine,South,07/781125,33.5434309997409,35.5718250002236
+137,Kfar Mechki,كفرمشكي,Rachaya,Rachiaya,Bekaa,08/530325,33.5158609999852,35.7673189997721
+138,Raimat,ريمات,Jezzine,Jezzine,South,07/805125,33.5274999998252,35.5090280001422
+139,Rachaya,راشيا,Rachaya,Rachiaya,Bekaa,08/595351,33.5020220003151,35.8461350002301
+140,Aanqoun,عنقون,Saida,Saida,South,07/205625,33.4984170004442,35.4364440001905
+141,Jbaa,جباع,El Nabatieh,Nabatiye,Nabatiyeh,07/210325,33.4862499996378,35.5175969996019
+142,Zefta,زفتا,El Nabatieh,Nabatiye,Nabatiyeh,07/506325,33.4479440003154,35.3978330002928
+143,Sarafand,الصرفند,Saida,Saida,South,07/260669,33.4376110004473,35.3076390003396
+144,Mlikh,مليخ,Jezzine,Jezzine,South,07/825264,33.472697999713,35.5640620001612
+145,Ain Aata,عين عطا,Rachaya,Rachiaya,Bekaa,08/520225,33.4323099997068,35.7740610004149
+146,Hasbaiya,حاصبيا,Hasbaya,Hasbaiya,Nabatiyeh,07/550125,33.3979170000695,35.6851419999034
+147,Khalouat,الخلوات,Hasbaya,Hasbaiya,Nabatiyeh,07/556325,33.4176360002013,35.7386939999282
+148,Aaichiye,العيشية,Jezzine,Jezzine,South,07/815125,33.4078919996161,35.5534910001096
+149,Douair,الدوير,El Nabatieh,Nabatiye,Nabatiyeh,07/435203,33.3900559999844,35.4181779996151
+150,Nabatieh,النبطية,El Nabatieh,Nabatiye,Nabatiyeh,07/760061,33.3771389996651,35.4838279999623
+151,Marjaayoun,مرجعيون,Marjaayoun,Marjaayoun,Nabatiyeh,07/831125,33.3607219998205,35.592443999591
+152,Chebaa,شبعا,Hasbaya,Hasbaiya,Nabatiyeh,07/565125,33.3498280001621,35.751707000178
+153,Rachaya el Foukhar,راشيا الفخار,Hasbaya,Hasbaiya,Nabatiyeh,07/560125,33.3540000001,35.6674749999713
+154,Qlaiaa,القليعة,Marjaayoun,Marjaayoun,Nabatiyeh,07/835225,33.3270829998806,35.5653609998104
+155,Khiyam,الخيام,Marjaayoun,Marjaayoun,Nabatiyeh,07/840125,33.32900000015,35.6126939999282
+156,Kfar Sir,كفرصير,El Nabatieh,Nabatiye,Nabatiyeh,07/540625,33.3249719996581,35.400824999774
+157,Foune,فرون,Bent Jbeil,Bint Jubail,Nabatiyeh,07/385325,33.2603609995605,35.4189389996352
+158,Tebnine,تبنين,Bent Jbeil,Bint Jubail,Nabatiyeh,07/325511,33.1939170003693,35.4097500003623
+159,Bent Jbayl,بنت جبيل,Bent Jbeil,Bint Jubail,Nabatiyeh,07/451125,33.1207220001203,35.4316939996784
+160,Rmaich,رميش,Bent Jbeil,Bint Jubail,Nabatiyeh,07/470125,33.0781110001226,35.367853000016
+161,Halba,حلبا,Akkar,Akkar,Akkar,06/691223,34.5427499996129,36.07836100026
+162,Kaslik Sea rescue,الكسليك الإنقاذ البحري,Kesrwane,Kasrouane,Mount Lebanon,09/641125,33.9845680002131,35.626487000175
+163,Batroun Sea rescue,البترون الإنقاذ البحري,El Batroun,El Batroun,North,06/744125,34.2581079997844,35.6572250003335
+164,Batroun,البترون,El Batroun,Batroun,North,06/642024,34.2530910004494,35.6677100000165
+165,cola,الكولا,Beirut,Beirut,Beirut,01/842126,33.8729420002732,35.4950739996654
+166,Imar,عيمار,El Minieh-Dennie,Minieh-Danieh,North,06/680225,34.3493100003563,35.9677280002471
+167,Karm Saddeh,كرم سده,Zgharta,Zgharta,North,06/595625,34.3091669999571,35.8893609998103
+168,Achrafieh,الأشرفية,Beirut,Beirut,Beirut,01/567125,33.8966000003898,35.5317120003086
+169,El Hichi,الهيشة,Akkar,Akkar,Akkar,06/870225,34.6368800003118,36.3725499996828
+170,Qoubbe,القبة,Tripoli,Tripoli,North,06/389125,34.4373540000871,35.8619249999388
+171,Bakhaaoun,بخعون,El Minieh-Dennie,Minieh-Danieh,North,06/241125,34.413803999555,36.0252020003721
+172,Kfar Hata,كفرحاتا,Zgharta,Zgharta,North,06/921125,34.3866239997978,35.9106610000052
+173,Nabha,نبحا,Baalbek,Baalbek,Baalback Hermel,08/305854,34.1845750001362,36.2361039999997
+174,Yahchouch,يحشوش,Kesrwane,Kasrouane,Mount Lebanon,09/865332,34.0699850002076,35.748163999569
+175,Douris,دوريس,Baalbek,Baalbek,Baalback Hermel,08/372325,33.9933929997872,36.1864049995911
+176,Tariq Jdide,طريق الجديدة,Beirut,Beirut,Beirut,01/818125,33.8784549999983,35.5107050001357
+177,Fanar,الفنار,El Meten,El Metn,Mount Lebanon,01/695125,33.8820619999614,35.5865749996366
+178,Tarchich,ترشيش,Baabda,Baabda,Mount Lebanon,04/385125,33.8789939996734,35.8088349996356
+179,Hadath,الحدث,Baabda,Baabda,Mount Lebanon,05/467125,33.8418489999315,35.5405880004359
+180,Haret Hraik,حارة حريك,Baabda,Baabda,Mount Lebanon,01/542125,33.8526940000281,35.5256549997785
+181,Bourj El Barajneh,برج البراجنة,Baabda,Baabda,Mount Lebanon,01/472299,33.8447659995513,35.5106460001128
+182,Chouaifat,الشويفات,Baabda,Baabda,Mount Lebanon,05/431117,33.81046499966,35.5320190000768
+183,Sohmor,سحمر,West Bekaa,West Bekaa,Bekaa,08/635354,33.5232000002798,35.6956099997018
+184,Qraiye,القرية,Jezzine,Jezzine,South,07/754125,33.5423769996988,35.4276450000168
+185,Aabbassiyet,العباسية,Sour,Sour,South,07/381125,33.3008309997509,35.2943930001369
+186,Taibe,الطيبة,Marjaayoun,Marjaayoun,Nabatiyeh,07/850125,33.2780499996078,35.5320630003073
+187,Tyre,صور,Sour,Sour,South,07/350125,33.2667379995591,35.2126290004281
+188,Jouaiya,جويا,Sour,Sour,South,07/411125,33.2405580000517,35.3485599997442
+189,Markaba,مركبا,Marjaayoun,Marjaayoun,Nabatiyeh,07/860125,33.2368659997661,35.5281190000918
+190,Kleile,قليلة,Sour,Sour,South,07/395325,33.200297999653,35.2392949998644
+191,Meis El Jabal,ميس الجبل,Marjaayoun,Marjaayoun,Nabatiyeh,07/865125,33.1726889998975,35.5318300003543
+192,Aalma Ech Chaab,علما الشعب,Sour,Sour,South,07/460125,33.1063009996914,35.1915210000942
+193,Jiyeh,الجية البحري,Chouf,Chouf,Mount Lebanon,07/995510,33.6761979997379,35.4166140003359
+194,Terboul,تربل,Zahle,Zahle,Bekaa,08/955325,33.8213119998489,35.9950049999808
+195,Raskifa,راس كيفا,Zgharta,Zgharta,North,06/550145,34.3128139999662,35.8778939998083
+196,Qaraaoun,القرعون,West Bekaa,West Bekaa,Bekaa,08/631225,33.5682100002913,35.7305480001901
+197,Derdaghaya,دردغيا,Sour,Sour,South,07/415209,33.2841219999304,35.3805520001747
+198,Ghbele,غبالة,Kesrwane,Kasrouane,Mount Lebanon,09/780125,34.0574420000483,35.7342399995763
+199,Qabrikha,قبريخا,Marjaayoun,Marjaayoun,Nabatiyeh,07/241126,33.2545230001364,35.4755890004321
+200,Minyara,منيارة,Akkar,Akkar,Akkar,06/694941,34.5359279997774,36.0713380001486
+201,Aidamoun,عيدمون,Akkar,Akkar,Akkar,06/881125,34.6235249995791,36.2843039996299
+202,headquarter,المركزية,Baabda,Baabda,Mount Lebanon,01/290029,33.867248000295,35.5245399996213
+203,ARIDA,العريضة,Akkar,Akkar,Akkar,06/820125,34.6110289997886,35.9982910004294
+204,Abboudieh,العبودية,Akkar,Akkar,Akkar,06/815013,34.6299999996003,36.1099999997003
+205,Bseba,بسابا,Baabda,Baabda,Mount Lebanon,05/434162,33.8000000000001,35.5400000002998

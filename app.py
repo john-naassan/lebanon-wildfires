@@ -327,17 +327,22 @@ def hero_figure(yr, gsel, wsel, secs, mode, pick, show_st, no_tiles, mobile=Fals
                         tickcolor="#5c5852", steps=steps)]
 
     if show_st:
-        data = data + [dict(type="scattermap", lat=stations.latitude.tolist(), lon=stations.longitude.tolist(),
-                            mode="markers", marker=dict(size=20, color="rgba(0,0,0,0)"),
-                            customdata=stations[["name", "district"]].values.tolist(),
-                            hovertemplate="<b>%{customdata[0]}</b><br>%{customdata[1]} district<extra>Fire station</extra>")]
+        # Civil Defence branches: white ring + red dot (205 points, so markers instead of image badges)
+        lat, lon = stations.latitude.tolist(), stations.longitude.tolist()
+        data = data + [dict(type="scattermap", lat=lat, lon=lon, mode="markers", hoverinfo="skip",
+                            marker=dict(size=8 if mobile else 9, color="#ffffff", opacity=0.95)),
+                       dict(type="scattermap", lat=lat, lon=lon, mode="markers",
+                            marker=dict(size=5 if mobile else 6, color="#e11d2e"),
+                            customdata=stations[["name", "name_ar", "district", "phone"]].values.tolist(),
+                            hovertemplate="<b>%{customdata[0]}</b> · %{customdata[1]}<br>%{customdata[2]} district"
+                                          "<br>☎ %{customdata[3]}<extra>Civil Defence</extra>")]
     layers = ([] if no_tiles else [
         dict(sourcetype="raster", below="traces", sourceattribution="Imagery © Esri, Maxar, Earthstar Geographics",
              source=["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"]),
         dict(sourcetype="raster", below="traces",
              source=["https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"])]) + [
         dict(source=geo_border, type="line", color="#ff4d4d", line=dict(width=2.5, dash=[2, 1.5]), below="traces")
-    ] + (station_layers(0.045) if show_st else [])
+    ]
     layout = dict(
         height=470 if mobile else 612, margin=dict(l=0, r=0, t=0, b=0), paper_bgcolor="#0E1013", showlegend=False,
         font=dict(family=FONT, color="#ECE8E1"),
@@ -774,7 +779,7 @@ with tab_data:
         "National forest loss to fire, by year": ("forest_loss_national", "Central estimate (codes 4 + 3), hectares per year, 2001–2025."),
         "Forest loss to fire, by district and year": ("forest_loss_districts", "Central estimate aggregated from subdivisions to districts; conflict-area rows excluded."),
         "Forest loss estimates (lower / central / upper)": ("forest_loss_estimates", "National totals 2001–2025 for the three certainty levels."),
-        "Fire stations (Civil Defence)": ("fire_stations", "Locations of fire stations used in the hero map overlay."),
+        "Fire stations (Civil Defence)": ("fire_stations", "205 Lebanese Civil Defence branches with district, phone and location, shown on the main map (⚙ Map options → Show fire stations)."),
     }
     f1, f2 = st.columns([2, 1])
     ds = f1.selectbox("Dataset", list(DATASETS), key="data_ds")
