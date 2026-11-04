@@ -10,6 +10,21 @@ import streamlit as st
 
 st.set_page_config(page_title="Lebanon Is Burning", page_icon="🔥", layout="wide")
 
+
+def detect_mobile():
+    """Phone or computer? ?view=mobile / ?view=desktop forces a layout; otherwise read the browser's User-Agent."""
+    forced = st.query_params.get("view", "").lower()
+    if forced in ("mobile", "desktop"):
+        return forced == "mobile"
+    try:
+        ua = st.context.headers.get("User-Agent", "") or ""
+    except Exception:
+        ua = ""
+    return any(k in ua for k in ("iPhone", "iPod", "Android", "Mobile", "Mobi")) and "iPad" not in ua
+
+
+MOBILE = detect_mobile()
+
 from pathlib import Path
 
 APP_DIR = Path(__file__).resolve().parent
@@ -35,7 +50,7 @@ FONT = "Inter, system-ui, -apple-system, Segoe UI, sans-serif"
 
 def style(fig, h=380):
     fig.update_layout(
-        height=round(h * 0.9), margin=dict(l=8, r=8, t=34, b=8), paper_bgcolor=SURFACE, plot_bgcolor=SURFACE,
+        height=round(h * (0.62 if MOBILE else 0.9)), margin=dict(l=8, r=8, t=34, b=8), paper_bgcolor=SURFACE, plot_bgcolor=SURFACE,
         font=dict(family=FONT, color=INK2, size=12), title_font=dict(color=INK, size=14),
         hoverlabel=dict(bgcolor="#0E1013", font_color=INK, bordercolor=AXIS), legend=dict(orientation="h", yanchor="top", y=-0.12, x=0),
     )
@@ -126,6 +141,27 @@ div[data-testid="stMetric"]{background:#171A20;border:1px solid #2A2E36;border-l
 .ld{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
 </style>""", unsafe_allow_html=True)
 
+if MOBILE:
+    st.markdown("""<style>
+.block-container{padding-left:12px !important;padding-right:12px !important}
+.st-key-filters{width:100%;top:0;margin:10px 0 6px}
+.st-key-filters [data-testid="stHorizontalBlock"]{flex-wrap:wrap;gap:8px}
+.st-key-filters [data-testid="stColumn"]{min-width:calc(50% - 4px) !important;flex:1 1 calc(50% - 4px) !important;width:calc(50% - 4px) !important}
+.st-key-hero{margin-top:0}
+.hero-ov{height:auto !important;margin-top:0 !important;padding:6px 4px 4px !important;pointer-events:auto}
+.hero-ov .h1{font-size:40px !important;margin:10px 0 8px !important}
+.hero-ov p.sub{font-size:14px !important;max-width:none}
+.hero-ov .tag{font-size:10px !important}
+.hero-bottom{padding-top:10px !important}
+.kgrid{position:static !important;grid-template-columns:1fr 1fr !important;gap:8px !important}
+.kc{padding:10px 12px !important}.kc .v{font-size:22px !important}.kc svg{width:100%}
+.legend{position:static !important;width:auto !important;margin-top:10px;white-space:normal !important}
+.stTabs [data-baseweb="tab-list"]{overflow-x:auto;flex-wrap:nowrap}
+.stTabs [data-baseweb="tab"]{padding:5px 12px !important;white-space:nowrap}
+.modebar-container{display:none !important}
+.st-key-filters{margin-top:-18px !important}
+</style>""", unsafe_allow_html=True)
+
 # ---------- filters: slim chips floating over the map ----------
 govs = sorted(fires.governorate.dropna().unique())
 with st.container(key="filters"):
@@ -162,7 +198,8 @@ LABEL_POS = {"Akkar": "middle right", "Batroun": "middle left", "Metn": "top lef
 
 
 @st.cache_data(show_spinner="Building the map animation…", max_entries=8)
-def hero_figure(yr, gsel, wsel, secs, mode, pick, show_st, no_tiles):
+def hero_figure(yr, gsel, wsel, secs, mode, pick, show_st, no_tiles, mobile=False):
+    TS = 21 if mobile else 31   # big date in the map title
     is_temp, w_on = wsel.startswith("Temp"), wsel != "Off"
     dd = fires[fires.year.between(*yr) & fires.governorate.isin(list(gsel) or govs)].copy()
     DIV = [[0, "#1c5cab"], [0.25, "#6da7ec"], [0.5, "#d9d8d2"], [0.75, "#ec835a"], [1, "#d03b3b"]]
@@ -209,7 +246,7 @@ def hero_figure(yr, gsel, wsel, secs, mode, pick, show_st, no_tiles):
                      hovertemplate="Fire in %{customdata[0]}<br>%{customdata[1]}<extra></extra>")] + \
                (station_traces(sy, acol, float(wy[acol].abs().max()), "%") if w_on else [])
         tm, rm = sy.temp_anom.mean(), sy.rain_anom.mean()
-        title = (f"<span style='font-size:31px'><b>{pick}</b></span><br>{len(fy):,} fires · "
+        title = (f"<span style='font-size:{TS}px'><b>{pick}</b></span><br>{len(fy):,} fires · "
                  f"{'hotter' if tm > 0 else 'cooler'} than normal ({tm:+.1f}°C) · rain {rm:+.0f}% vs normal")
     else:
         # weather by month
@@ -258,7 +295,7 @@ def hero_figure(yr, gsel, wsel, secs, mode, pick, show_st, no_tiles):
         for k, D in enumerate(range(0, n_days + 1, STEP)):
             date = origin + pd.Timedelta(days=D)
             T = date.year * 12 + date.month - 1
-            ttl_head = f"<span style='font-size:31px'><b>{MONTH_NAMES[date.month - 1]} {date.year}</b></span><br>"
+            ttl_head = f"<span style='font-size:{TS}px'><b>{MONTH_NAMES[date.month - 1]} {date.year}</b></span><br>"
             if T != prevT:
                 h, stn, sub = month_parts(T)
                 fr = dict(name=str(k), data=[h, dots(D)] + stn, traces=list(range(n_tr)),
@@ -272,19 +309,19 @@ def hero_figure(yr, gsel, wsel, secs, mode, pick, show_st, no_tiles):
             frames.append(fr)
         # before Play: the whole period at a glance (all fires as one heat glow); Play then runs week by week
         data = [heat(dd, max(3.0, 0.004 * len(dd))), dict(type="scattermap", lat=[], lon=[], mode="markers")] + frames[0]["data"][2:]
-        title = (f"<span style='font-size:31px'><b>{yr[0]}–{yr[1]}</b></span><br>{len(dd):,} fires · press Play to watch them "
+        title = (f"<span style='font-size:{TS}px'><b>{yr[0]}–{yr[1]}</b></span><br>{len(dd):,} fires · press Play to watch them "
                  "spread week by week")
         ms = int(secs * 1000 * STEP / 365)
-        menus = [dict(type="buttons", direction="left", x=0.031, y=0.49, xanchor="left", yanchor="top",
+        menus = [dict(type="buttons", direction="left", x=0.03 if mobile else 0.031, y=0.985 if mobile else 0.49, xanchor="left", yanchor="top",
                       pad=dict(r=9, t=0, l=0), showactive=False, bgcolor="#FF6A2B", bordercolor="#FF6A2B",
-                      font=dict(color="#111111", size=14, family="Inter, sans-serif"),
+                      font=dict(color="#111111", size=12 if mobile else 14, family="Inter, sans-serif"),
                       buttons=[dict(label=f"▶  Play {yr[0]} → {yr[1]}", method="animate",
                                     args=[None, dict(frame=dict(duration=ms, redraw=True),
                                                      transition=dict(duration=0), fromcurrent=True)]),
                                dict(label="❚❚  Pause", method="animate",
                                     args=[[None], dict(frame=dict(duration=0, redraw=False),
                                                        mode="immediate", transition=dict(duration=0))])])]
-        sliders = [dict(active=0, x=0.645, len=0.335, y=0.025, yanchor="bottom", pad=dict(t=0, b=0),
+        sliders = [dict(active=0, x=0.05 if mobile else 0.645, len=0.9 if mobile else 0.335, y=0.01 if mobile else 0.025, yanchor="bottom", pad=dict(t=0, b=0),
                         currentvalue=dict(visible=False), ticklen=3, minorticklen=0, bgcolor="#2A2E36",
                         activebgcolor="#FF6A2B", bordercolor="#3A3F48", font=dict(color="#C9C4BC", size=10),
                         tickcolor="#5c5852", steps=steps)]
@@ -302,15 +339,35 @@ def hero_figure(yr, gsel, wsel, secs, mode, pick, show_st, no_tiles):
         dict(source=geo_border, type="line", color="#ff4d4d", line=dict(width=2.5, dash=[2, 1.5]), below="traces")
     ] + (station_layers(0.045) if show_st else [])
     layout = dict(
-        height=612, margin=dict(l=0, r=0, t=0, b=0), paper_bgcolor="#0E1013", showlegend=False,
+        height=470 if mobile else 612, margin=dict(l=0, r=0, t=0, b=0), paper_bgcolor="#0E1013", showlegend=False,
         font=dict(family=FONT, color="#ECE8E1"),
-        title=dict(text=title, x=0.031, xanchor="left", y=0.395, yanchor="top", yref="paper",
-                   font=dict(size=14, color="#ECE8E1")),
+        title=dict(text=title, x=0.03 if mobile else 0.031, xanchor="left", y=0.885 if mobile else 0.395, yanchor="top", yref="paper",
+                   font=dict(size=11 if mobile else 14, color="#ECE8E1")),
         hoverlabel=dict(bgcolor="#0E1013", font_color="#ECE8E1"),
         updatemenus=menus, sliders=sliders,
-        images=[dict(source=GRAD, xref='paper', yref='paper', x=0, y=1, sizex=0.5, sizey=1, sizing='stretch', layer='above', xanchor='left', yanchor='top')],
-        map=dict(style="white-bg", center={"lat": 33.79, "lon": 34.62}, zoom=6.95, layers=layers))
+        images=[] if mobile else [dict(source=GRAD, xref='paper', yref='paper', x=0, y=1, sizex=0.5, sizey=1, sizing='stretch', layer='above', xanchor='left', yanchor='top')],
+        map=dict(style="white-bg", center={"lat": 33.84, "lon": 35.83} if mobile else {"lat": 33.79, "lon": 34.62},
+                 zoom=7.05 if mobile else 6.95, layers=layers))
+    if mobile:                                               # phones: keep only the first part of the map caption
+        import re as _re
+        short = lambda t: _re.sub(r"(<br>[^·<]*?)\s*·.*$", r"\1", t) if isinstance(t, str) else t
+        layout["title"]["text"] = short(layout["title"]["text"])
+        for fr in frames:
+            if "layout" in fr and "title" in fr["layout"]:
+                fr["layout"]["title"]["text"] = short(fr["layout"]["title"]["text"])
     return dict(data=data, layout=layout, frames=frames)
+
+
+def hero_block(chart, html):
+    """Desktop: text and cards float over the map. Phone: title on top, map in the middle, cards underneath."""
+    if MOBILE:
+        i = html.index('<div class="kgrid">')
+        st.markdown(html[:i] + "</div>", unsafe_allow_html=True)
+        chart()
+        st.markdown('<div class="hero-ov hero-bottom">' + html[i:], unsafe_allow_html=True)
+    else:
+        chart()
+        st.markdown(html, unsafe_allow_html=True)
 
 
 LIVE_DAYS = 30                               # live mode always shows the 30 days up to the moment the app is opened
@@ -463,11 +520,12 @@ def live_figure(s, no_tiles, days):
         go.Scattermap(lat=s.latitude, lon=s.longitude, mode="markers", text=hover, hovertemplate="%{text}<extra></extra>",
                       marker=dict(size=size, color=col, opacity=0.95))]
     fig = go.Figure(data)
-    fig.update_layout(height=612, margin=dict(l=0, r=0, t=0, b=0), paper_bgcolor="#0E1013", showlegend=False,
+    fig.update_layout(height=470 if MOBILE else 612, margin=dict(l=0, r=0, t=0, b=0), paper_bgcolor="#0E1013", showlegend=False,
                       font=dict(family=FONT, color="#ECE8E1"), hoverlabel=dict(bgcolor="#0E1013", font_color="#ECE8E1"),
-                      images=[dict(source=GRAD, xref='paper', yref='paper', x=0, y=1, sizex=0.5, sizey=1, sizing='stretch',
+                      images=[] if MOBILE else [dict(source=GRAD, xref='paper', yref='paper', x=0, y=1, sizex=0.5, sizey=1, sizing='stretch',
                                    layer='above', xanchor='left', yanchor='top')],
-                      map=dict(style="white-bg", center={"lat": 33.79, "lon": 34.62}, zoom=6.95, layers=layers))
+                      map=dict(style="white-bg", center={"lat": 33.84, "lon": 35.83} if MOBILE else {"lat": 33.79, "lon": 34.62},
+                               zoom=7.05 if MOBILE else 6.95, layers=layers))
     return fig
 
 
@@ -489,9 +547,9 @@ def render_live():
     win = {1: "24 hours", 2: "48 hours", 7: "7 days", 30: "30 days"}[LIVE_DAYS]
     b1, b2, b3 = age_bands(LIVE_DAYS)[2:]
     with st.container(key="hero"):
-        st.plotly_chart(live_figure(s, bool(os.environ.get("NO_TILES")), LIVE_DAYS), width="stretch",
+        _chart = lambda: st.plotly_chart(live_figure(s, bool(os.environ.get("NO_TILES")), LIVE_DAYS), width="stretch",
                         config={"displayModeBar": False, "scrollZoom": True}, key="live_map")
-        st.markdown(f"""<div class="hero-ov">
+        hero_block(_chart, f"""<div class="hero-ov">
 <div class="tag live"><span class="dot"></span>LIVE · NASA FIRMS · updated {now.astimezone(BEIRUT):%H:%M} Beirut time</div>
 <div class="h1">Lebanon Is<br><span class="hot">Burning</span></div>
 <p class="sub">{len(s):,} fire detections across Lebanon in the last {win}, straight from NASA's satellites.</p>
@@ -504,7 +562,7 @@ def render_live():
 <div class="legend" style="width:auto;white-space:nowrap">Detected<div style="display:flex;gap:12px;margin-top:8px;align-items:center">
 <span><span class="ld" style="background:#fff3a0"></span>{b1}</span><span><span class="ld" style="background:#ffb000"></span>{b2}</span><span><span class="ld" style="background:#ff5a1a"></span>{b3}</span></div>
 <div style="margin-top:6px;color:#B9B3AA">Bigger dot = more intense</div></div>
-</div>""", unsafe_allow_html=True)
+</div>""")
     st.caption(f"Live mode shows every VIIRS fire detection over Lebanon from the last {win} (Suomi-NPP, NOAA-20 and NOAA-21 satellites). "
                "NASA publishes detections about 3 hours after each satellite pass, so 'live' means within a few hours. "
                "Data refreshes every 10 minutes. Some hot spots can be industrial heat or agricultural burning.")
@@ -513,13 +571,13 @@ def render_live():
 if live:
     render_live()
 else:
-    fig_hero = hero_figure(yr, tuple(gsel), wvar, secs, mode, pick, show_st2, bool(os.environ.get("NO_TILES")))
+    fig_hero = hero_figure(yr, tuple(gsel), wvar, secs, mode, pick, show_st2, bool(os.environ.get("NO_TILES")), MOBILE)
     avg = per_year.mean()
     _v = per_year.reindex(range(yr[0], yr[1] + 1), fill_value=0).values
     _pts = " ".join(f"{4 + i * 112 / max(1, len(_v) - 1):.0f},{26 - 22 * v / max(1, _v.max()):.0f}" for i, v in enumerate(_v))
     with st.container(key="hero"):
-        st.plotly_chart(fig_hero, width="stretch", config={"displayModeBar": False, "scrollZoom": True}, key="hero_map")
-        st.markdown(f"""<div class="hero-ov">
+        _chart = lambda: st.plotly_chart(fig_hero, width="stretch", config={"displayModeBar": False, "scrollZoom": True}, key="hero_map")
+        hero_block(_chart, f"""<div class="hero-ov">
     <div class="tag">NASA SATELLITE DATA · {yr[0]}–{yr[1]}</div>
     <div class="h1">Lebanon Is<br><span class="hot">Burning</span></div>
     <p class="sub">{len(d):,} wildfires detected from space. Where they strike, when, and what they cost our forests.</p>
@@ -530,7 +588,7 @@ else:
      <div class="kc"><div class="l">Forest lost to fires</div><div class="v">{fl.loss_ha.sum():,.0f} ha</div><div class="s">central estimate</div></div>
     </div>
     <div class="legend">Fire density<div class="bar"></div><div style="display:flex;justify-content:space-between"><span>Few</span><span>Many</span></div></div>
-    </div>""", unsafe_allow_html=True)
+    </div>""")
     if mode.startswith("One"):
         st.caption(f"Every fire detected in {pick} is a yellow dot; the glow shows where they cluster. Circles are the 5 weather stations "
                    "(red = hotter/drier than normal, blue = cooler/wetter). Satellite imagery: Esri.")
@@ -554,7 +612,7 @@ with tab_where:
                               hover_data={"fires": ":,", "district": False}, hover_name="district",
                               labels={"fires": "Fires"},
                               map_style="white-bg" if os.environ.get("NO_TILES") else "carto-positron",
-                              center={"lat": 33.9, "lon": 35.85}, zoom=7.40, opacity=0.95)
+                              center={"lat": 33.9, "lon": 35.85}, zoom=6.85 if MOBILE else 7.40, opacity=0.95)
         m.update_traces(marker_line_color="white", marker_line_width=1)
         m.update_layout(coloraxis_colorbar=dict(title="Total fires", thickness=12, len=0.7, tickfont=dict(color=INK2)),
                         showlegend=False)
@@ -571,7 +629,7 @@ with tab_where:
                                textfont=dict(color=[FIRE if n in rank else MUTED for n in top.index], size=12),
                                cliponaxis=False, hovertemplate="%{y}: %{x:,} fires<extra></extra>"))
         bar.update_layout(title="Top 10 districts by fires", bargap=0.3)
-        bar.update_xaxes(showgrid=False, showticklabels=False, range=[0, top.max() * 1.15])
+        bar.update_xaxes(showgrid=False, showticklabels=False, range=[0, top.max() * (1.3 if MOBILE else 1.15)])
         bar.update_yaxes(showgrid=False, tickfont=dict(size=12))
         bar = style(bar, 600)
         bar.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=8, r=8, t=36, b=0))
@@ -670,8 +728,9 @@ with tab_cost:
                      legend=dict(title_text="Selection", orientation="v", x=1.01, y=1, yanchor="top"))
     nb.update_xaxes(dtick=2, title="Year")
     nb.update_yaxes(title="Forest loss (ha)")
-    nb = style(nb, 420)
-    nb.update_layout(legend=dict(title_text="Selection", orientation="v", x=1.01, y=1, yanchor="top"))
+    nb = style(nb, 420 if not MOBILE else 520)
+    nb.update_layout(legend=dict(title_text="", orientation="h", x=0, y=-0.42, yanchor="top") if MOBILE else
+                     dict(title_text="Selection", orientation="v", x=1.01, y=1, yanchor="top"))
     st.plotly_chart(nb, width="stretch")
 
     dl = loss_dist[loss_dist.year.between(*yr) & loss_dist.governorate.isin(gsel or loss_dist.governorate.unique())]
@@ -682,11 +741,11 @@ with tab_cost:
         dm = px.choropleth_map(byd.rename("loss_ha").reset_index(), geojson=geo, locations="district",
                                featureidkey="properties.district", color="loss_ha", color_continuous_scale=GREENS,
                                map_style="white-bg" if os.environ.get("NO_TILES") else "carto-positron",
-                               center={"lat": 33.9, "lon": 35.85}, zoom=7.40, opacity=0.95,
+                               center={"lat": 33.9, "lon": 35.85}, zoom=6.85 if MOBILE else 7.40, opacity=0.95,
                                labels={"loss_ha": "Forest loss (ha)"})
         dm.update_traces(marker_line_color="#ffffff", marker_line_width=0.8,
                          hovertemplate="%{location}: %{z:,.1f} ha<extra></extra>")
-        dm.update_layout(title="Forest loss by district · selected years", height=540, margin=dict(l=0, r=0, t=34, b=0),
+        dm.update_layout(title="Forest loss by district · selected years", height=400 if MOBILE else 540, margin=dict(l=0, r=0, t=34, b=0),
                          paper_bgcolor="rgba(0,0,0,0)", font_color=INK,
                          coloraxis_colorbar=dict(title="ha", thickness=10, len=0.6))
         st.plotly_chart(dm, width="stretch")
@@ -699,7 +758,7 @@ with tab_cost:
                               textfont=dict(color=["#6FCF97" if n in first3 else MUTED for n in top.index], size=13), cliponaxis=False,
                               hovertemplate="%{y}: %{x:,.1f} ha<extra></extra>"))
         hb.update_layout(title="Top 10 districts by forest loss", bargap=0.3)
-        hb.update_xaxes(showgrid=False, showticklabels=False, range=[0, (top.max() if len(top) else 1) * 1.2])
+        hb.update_xaxes(showgrid=False, showticklabels=False, range=[0, (top.max() if len(top) else 1) * (1.4 if MOBILE else 1.2)])
         hb.update_yaxes(showgrid=False, tickfont=dict(size=12))
         hb = style(hb, 600)
         hb.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=8, r=8, t=36, b=0))
