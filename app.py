@@ -833,7 +833,10 @@ tab_where, tab_when, tab_why, tab_cost, tab_data = st.tabs(["📍 Where", "📅 
 # ---------- WHERE ----------
 # ---------- WHERE ----------
 with tab_where:
-    st.subheader("Akkar and Chouf burn the most")
+    _top2 = list(by_dist.head(2).index)                          # follows the year range and governorate filters
+    _yrs = f"{yr[0]}" if yr[0] == yr[1] else f"{yr[0]}–{yr[1]}"
+    st.subheader(f"{_top2[0]} and {_top2[1]} burn the most, {_yrs}" if len(_top2) == 2 else
+                 f"{_top2[0]} burns the most, {_yrs}" if _top2 else f"No fires detected in {_yrs}")
     dens = by_dist.rename("fires").reset_index()
     LIGHT_TO_DARK = ["#fdeee6", "#f9c9ad", "#f3a07a", "#eb6834", "#c94d1f", "#9a3412", "#6b2109"]  # fewest -> most fires
     a, b = st.columns([1.25, 1], gap="large")
