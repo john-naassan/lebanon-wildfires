@@ -795,7 +795,7 @@ def render_live():
 </div>""")
     st.caption(f"Live mode shows every VIIRS fire detection over Lebanon from the last {win} (Suomi-NPP, NOAA-20 and NOAA-21 satellites). "
                "NASA publishes detections about 3 hours after each satellite pass, so 'live' means within a few hours. "
-               "Data refreshes every 10 minutes. Some hot spots can be industrial heat or agricultural burning.")
+               "Data refreshes every 10 minutes. Click a fire detection to see which Civil Defense station has the shortest estimated drive time in current traffic.")
     route_reset(pick)
 
 
@@ -833,7 +833,7 @@ tab_where, tab_when, tab_why, tab_cost, tab_data = st.tabs(["📍 Where", "📅 
 # ---------- WHERE ----------
 # ---------- WHERE ----------
 with tab_where:
-    st.subheader("Akkar, the Chouf and the South burn most")
+    st.subheader("Akkar and Chouf burn the most")
     dens = by_dist.rename("fires").reset_index()
     LIGHT_TO_DARK = ["#fdeee6", "#f9c9ad", "#f3a07a", "#eb6834", "#c94d1f", "#9a3412", "#6b2109"]  # fewest -> most fires
     a, b = st.columns([1.25, 1], gap="large")
@@ -939,15 +939,9 @@ with tab_cost:
     tot = nat.loss_ha[sel].sum()
     pk = nat[sel].loc[nat[sel].loss_ha.idxmax()] if sel.any() else nat.loc[nat.loss_ha.idxmax()]
     st.subheader(f"{tot:,.0f} ha of forest lost to fire in {yr[0]}–{yr[1]}, worst in {int(pk.year)}")
-    st.caption("Forest loss attributed to fire: Hansen et al. (2013) global 30 m forest-loss data, 2001–2019, extended to 2025 and split "
-               "into fire and other drivers. Pixels are coded 4 = high certainty of fire, 3 = medium, 2 = low, 1 = non-fire. "
-               "Lower estimate = code 4; central estimate = codes 4 + 3; upper estimate = codes 4 + 3 + 2. "
-               "The central estimate is used for all national, governorate and district figures below.")
-    est = loss_est.iloc[0]
-    k1, k2, k3 = st.columns(3)
-    k1.metric("Lower estimate, 2001–2025", f"{est.Lower_ha:,.0f} ha")
-    k2.metric("Central estimate, 2001–2025", f"{est.Central_ha:,.0f} ha")
-    k3.metric("Upper estimate, 2001–2025", f"{est.Upper_ha:,.0f} ha")
+    st.caption("We estimated how much forest Lebanon lost to fire from 2001 to 2025 using satellite data. Our lower estimate includes "
+               "only areas where we have high confidence that fire caused the loss. The central estimate adds areas with medium "
+               "confidence, and the upper estimate adds areas with low confidence. The figures below use the central estimate.")
 
     GREEN, GREEN_LT = "#2E7D5B", "#C9D9CF"
     nb = go.Figure()
@@ -982,7 +976,7 @@ with tab_cost:
         st.plotly_chart(dm, width="stretch")
     with c2:
         top = byd.head(10)[::-1]
-        first3 = set(byd.index[:1])
+        first3 = set(byd.index[:2])                      # top 2 highlighted, as on the fires chart
         hb = go.Figure(go.Bar(x=top.values, y=top.index, orientation="h",
                               marker_color=[GREEN if n in first3 else "#C8C6BE" for n in top.index],
                               text=[f"{v:,.0f} ha" for v in top.values], textposition="outside",
@@ -994,7 +988,6 @@ with tab_cost:
         hb = style(hb, 600)
         hb.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=8, r=8, t=36, b=0))
         st.plotly_chart(hb, width="stretch")
-    st.caption("District totals exclude about 18 ha of loss in subdivisions flagged as conflict areas, so they sum slightly below the national figure.")
 
 # ---------- DATA ----------
 with tab_data:
