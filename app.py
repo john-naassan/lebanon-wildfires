@@ -131,6 +131,13 @@ div[data-testid="stMetric"]{background:#171A20;border:1px solid #2A2E36;border-l
 .kc{background:rgba(23,26,32,.86);backdrop-filter:blur(5.4px);border:1px solid #2A2E36;border-left:3.6px solid #FF6A2B;border-radius:10.8px;padding:10.8px 14.4px}
 .kc .l{font-size:10.8px;color:#B9B3AA !important}.kc .v{font-size:25.2px;font-weight:800;color:#fff !important;line-height:1.2}.kc .s{font-size:10.8px;color:#FF9a6b !important}
 .legend{position:absolute;right:25.2px;bottom:77.4px;background:rgba(23,26,32,.88);border:1px solid #2A2E36;border-radius:9px;padding:9px 12.6px;font-size:10.8px;width:171px}
+.rpanel{position:absolute;right:25.2px;top:84px;width:290px;background:rgba(14,16,19,.92);backdrop-filter:blur(5px);border:1px solid #2A2E36;border-left:4px solid #4C6EF5;border-radius:10px;padding:12px 15px;color:#ECE8E1}
+.rpanel.hint{border-left-color:#8C877F;width:250px}
+.rpanel .rl{color:#9FB2FF;font-size:11.5px;font-weight:600;line-height:1.3}.rpanel.hint .rl{color:#C9C4BC}
+.rpanel .rn{color:#F2EEE8;font-size:19px;font-weight:800;margin:6px 0 0}
+.rpanel .rt{color:#7FA0FF;font-size:38px;font-weight:900;line-height:1.1;margin:2px 0 6px}.rpanel .rt small{font-size:15px;color:#C9C4BC;font-weight:600}
+.rpanel .rrow{display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;border-top:1px solid #2A2E36;color:#B9B3AA}.rpanel .rrow b{color:#F2EEE8}
+.rpanel .rs{color:#8C877F;font-size:11px;line-height:1.35;margin-top:8px}
 .legend .bar{height:7.2px;border-radius:3.6px;background:linear-gradient(90deg,#2840ff,#00c8ff,#00d25a,#ffe000,#ff8c00,#e61414);margin:6.3px 0 2.7px}
 .stTabs [data-baseweb="tab-list"]{gap:9px;margin-top:12.6px}
 .stTabs [data-baseweb="tab"]{border:1px solid #3A3F48 !important;border-radius:89.1px !important;padding:5.4px 16.2px !important;height:auto !important;background:transparent !important}
@@ -160,6 +167,7 @@ if MOBILE:
 .kgrid{position:static !important;grid-template-columns:1fr 1fr !important;gap:8px !important}
 .kc{padding:10px 12px !important}.kc .v{font-size:22px !important}.kc svg{width:100%}
 .legend{position:static !important;width:auto !important;margin-top:10px;white-space:normal !important}
+.rpanel{position:static !important;width:auto !important;margin-top:10px}
 .stTabs [data-baseweb="tab-list"]{overflow-x:auto;flex-wrap:nowrap}
 .stTabs [data-baseweb="tab"]{padding:5px 12px !important;white-space:nowrap}
 .modebar-container{display:none !important}
@@ -370,9 +378,15 @@ def hero_figure(yr, gsel, wsel, secs, mode, pick, show_st, no_tiles, mobile=Fals
 def hero_block(chart, html):
     """Desktop: text and cards float over the map. Phone: title on top, map in the middle, cards underneath."""
     if MOBILE:
+        panel = ""
+        if "<!--rp-->" in html:                              # live route panel: show it right under the map on phones
+            a, b = html.index("<!--rp-->"), html.index("<!--/rp-->") + len("<!--/rp-->")
+            panel, html = html[a:b], html[:a] + html[b:]
         i = html.index('<div class="kgrid">')
         st.markdown(html[:i] + "</div>", unsafe_allow_html=True)
         chart()
+        if panel:
+            st.markdown('<div class="hero-ov hero-bottom">' + panel + "</div>", unsafe_allow_html=True)
         st.markdown('<div class="hero-ov hero-bottom">' + html[i:], unsafe_allow_html=True)
     else:
         chart()
@@ -684,30 +698,34 @@ def live_figure(s, no_tiles, days, route=None, pick=None):
         z = float(np.clip(np.log2(px_w * 360 * (0.5 if MOBILE else 0.25) / (512 * span)), 7, 10.5))   # route fills ~1/4 of the width
         width_deg = px_w / (512 * 2 ** z) * 360
         fig.update_layout(uirevision=f"route{la[-1]:.4f}{lo[-1]:.4f}", map=dict(zoom=z, center={
-            "lat": (max(la) + min(la)) / 2, "lon": (max(lo) + min(lo)) / 2 - (0 if MOBILE else 0.22 * width_deg)}))
+            "lat": (max(la) + min(la)) / 2, "lon": (max(lo) + min(lo)) / 2 - (0 if MOBILE else 0.05 * width_deg)}))
     return fig
 
 
-def route_card(route, msg, pick):
-    """The answer to a click on a fire, under the live map."""
+def route_panel(route, msg, pick):
+    """Side panel on the live map with the answer to a click on a fire (under the map on phones)."""
     if pick is None:
-        st.caption("🚒 Click any fire on the map to see the road route from the nearest Civil Defence centre and how long the drive takes with current traffic.")
-        return
+        return ('<div class="rpanel hint"><div class="rl">🚒 Route to a fire</div>'
+                '<div class="rs">Click any fire on the map to see the road route from the nearest Civil Defence centre '
+                'and how long the drive takes with current traffic.</div></div>')
     if not route:
-        st.caption(f"🚒 {msg}")
-        return
+        return f'<div class="rpanel"><div class="rl">🚒 Fire in {pick[2]}</div><div class="rs">{msg}</div></div>'
     sr = stations.iloc[route["st"]]
     asked = datetime.fromisoformat(route["t"]).astimezone(BEIRUT)
-    st.markdown(f"""<div style="background:#171A20;border:1px solid #2A2E36;border-left:4px solid #4C6EF5;border-radius:10px;padding:12px 16px;margin:4px 0 6px">
-<div style="color:#8C877F;font-size:12px">🚒 Nearest Civil Defence centre by road to this fire in {pick[2]}</div>
-<div style="color:#F2EEE8;font-size:22px;font-weight:800;margin:2px 0">{sr['name']} · {route['sec'] / 60:.0f} min drive</div>
-<div style="color:#C9C4BC;font-size:13px">{route['m'] / 1000:.1f} km by road · {route['static'] / 60:.0f} min without traffic · Google Maps traffic at {asked:%H:%M} Beirut time{f" · ☎ {sr['phone']}" if sr['phone'] else ""}</div></div>""",
-                unsafe_allow_html=True)
-    if st.button("↺ Back to all of Lebanon", key="route_reset"):
+    phone = f'<div class="rrow"><span>Phone</span><b>☎ {sr["phone"]}</b></div>' if sr["phone"] else ""
+    return f"""<div class="rpanel"><div class="rl">🚒 Nearest Civil Defence centre by road · fire in {pick[2]}</div>
+<div class="rn">{sr['name']}</div>
+<div class="rt">{route['sec'] / 60:.0f}<small> min drive</small></div>
+<div class="rrow"><span>Without traffic</span><b>{route['static'] / 60:.0f} min</b></div>
+<div class="rrow"><span>Distance by road</span><b>{route['m'] / 1000:.1f} km</b></div>{phone}
+<div class="rs">{msg or ""}Google Maps traffic at {asked:%H:%M} Beirut time. A car's drive time, not a real response time: it leaves out
+dispatch and crew preparation, and fire trucks on mountain roads are slower.</div></div>"""
+
+
+def route_reset(pick):
+    if pick is not None and st.button("↺ Back to all of Lebanon", key="route_reset"):
         st.session_state["live_map_n"] = st.session_state.get("live_map_n", 0) + 1
         st.rerun()
-    st.caption((msg or "") + "Estimated drive time for a car on today's roads, not a real response time: it leaves out dispatch and crew "
-               "preparation, and fire trucks on mountain roads are slower. Click another fire to compare.")
 
 
 def render_live():
@@ -752,11 +770,12 @@ def render_live():
 <div class="legend" style="width:auto;white-space:nowrap">Detected<div style="display:flex;gap:12px;margin-top:8px;align-items:center">
 <span><span class="ld" style="background:#fff3a0"></span>{b1}</span><span><span class="ld" style="background:#ffb000"></span>{b2}</span><span><span class="ld" style="background:#ff5a1a"></span>{b3}</span></div>
 <div style="margin-top:6px;color:#B9B3AA">Bigger dot = more intense</div></div>
+<!--rp-->{route_panel(route, route_msg, pick)}<!--/rp-->
 </div>""")
     st.caption(f"Live mode shows every VIIRS fire detection over Lebanon from the last {win} (Suomi-NPP, NOAA-20 and NOAA-21 satellites). "
                "NASA publishes detections about 3 hours after each satellite pass, so 'live' means within a few hours. "
                "Data refreshes every 10 minutes. Some hot spots can be industrial heat or agricultural burning.")
-    route_card(route, route_msg, pick)
+    route_reset(pick)
 
 
 if live:
