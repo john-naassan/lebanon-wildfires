@@ -68,7 +68,11 @@ def load():
     loss_e = pd.read_csv(P("forest_loss_estimates.csv"))
     geo = json.load(open(P("districts.geojson")))
     border = json.load(open(P("lebanon_border.geojson")))
-    stations = pd.read_csv(P("fire_stations.csv"))
+    stations = pd.read_csv(P("fire_stations.csv"), dtype={"phone": str})
+    for col in ("name_ar", "district", "phone"):          # older station files lack these columns
+        if col not in stations.columns:
+            stations[col] = ""
+    stations[["name_ar", "phone"]] = stations[["name_ar", "phone"]].fillna("")
     icon = "data:image/png;base64," + base64.b64encode(open(P("station_icon.png"), "rb").read()).decode()
     return f, w, loss, loss_d, loss_e, geo, border, stations, icon
 
@@ -488,6 +492,136 @@ def fetch_live(days):
     return s.sort_values("when"), now
 
 
+# ---------- LIVE MODE: click a fire -> route from the nearest Civil Defence centre (Google Routes API, with traffic) ----------
+# Google is only asked when someone clicks a fire. Each click checks the 2 nearest centres (2 requests) and keeps the
+# quicker one. The answer is reused for 30 minutes for clicks on the same spot, and the app stops at the caps below
+# so it stays well inside Google's free 5,000 a month.
+ROUTES_URL = "https://routes.googleapis.com/directions/v2:computeRoutes"
+ROUTE_CELL = 0.01          # degrees (~1 km): clicks on fires in the same cell reuse one answer
+ROUTE_CANDIDATES = 2       # nearest centres (straight line) to try; the quickest by road is one of the 2 nearest ~93% of the time
+ROUTE_REUSE_MIN = 30       # minutes before the same spot is asked again (traffic changes)
+ROUTE_DAILY_CAP = 100      # Google requests per UTC day
+ROUTE_MONTHLY_CAP = 3000   # Google requests per calendar month: well below the 5,000 free
+ROUTE_STORE = APP_DIR / ".route_cache.json"
+
+
+def routes_key():
+    try:
+        return str(st.secrets["GOOGLE_MAPS_KEY"]).strip().strip('"').strip("'")
+    except Exception:
+        return os.environ.get("GOOGLE_MAPS_KEY", "")
+
+
+@st.cache_resource
+def route_store():
+    """Routes already looked up (shared by all visitors) + Google requests used per day, kept on disk."""
+    import threading
+    try:
+        data = json.load(open(ROUTE_STORE))
+    except Exception:
+        data = {}
+    data.setdefault("cells", {})
+    data.setdefault("used", {})
+    return {"data": data, "lock": threading.Lock()}
+
+
+def hav_km(lat, lon, slat, slon):
+    lat, lon, slat, slon = map(np.radians, (lat, lon, slat, slon))
+    a = np.sin((slat - lat) / 2) ** 2 + np.cos(lat) * np.cos(slat) * np.sin((slon - lon) / 2) ** 2
+    return 6371 * 2 * np.arcsin(np.sqrt(a))
+
+
+def decode_polyline(s):
+    """Google encoded polyline -> list of (lat, lon)."""
+    pts, i, lat, lon = [], 0, 0, 0
+    while i < len(s):
+        for which in (0, 1):
+            shift = res = 0
+            while True:
+                b = ord(s[i]) - 63
+                i += 1
+                res |= (b & 0x1F) << shift
+                shift += 5
+                if b < 0x20:
+                    break
+            d = ~(res >> 1) if res & 1 else res >> 1
+            if which == 0:
+                lat += d
+            else:
+                lon += d
+        pts.append((lat / 1e5, lon / 1e5))
+    return pts
+
+
+def _one_route(key, st_i, lat, lon):
+    """Drive from centre st_i to the fire. Returns (dict, error)."""
+    slat, slon = float(stations.latitude.iat[st_i]), float(stations.longitude.iat[st_i])
+    if os.environ.get("ROUTES_FAKE"):                       # offline preview: fake answer, no API call
+        km = float(hav_km(lat, lon, slat, slon)) * 1.35
+        return {"sec": km * 95 + 120, "static": km * 80 + 90, "m": km * 1000, "st": st_i,
+                "path": [(slat, slon), ((slat + lat) / 2 + 0.01, (slon + lon) / 2), (lat, lon)]}, None
+    wp = lambda a, b: {"location": {"latLng": {"latitude": a, "longitude": b}}}
+    body = {"origin": wp(slat, slon), "destination": wp(float(lat), float(lon)), "travelMode": "DRIVE", "routingPreference": "TRAFFIC_AWARE"}
+    req = urllib.request.Request(ROUTES_URL, data=json.dumps(body).encode(), method="POST", headers={
+        "Content-Type": "application/json", "X-Goog-Api-Key": key,
+        "X-Goog-FieldMask": "routes.duration,routes.staticDuration,routes.distanceMeters,routes.polyline.encodedPolyline"})
+    try:
+        with urllib.request.urlopen(req, timeout=20) as r:
+            js = json.loads(r.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        try:
+            msg = json.loads(e.read().decode("utf-8", "replace"))["error"]["message"]
+        except Exception:
+            msg = e.reason
+        return None, f"Google Routes HTTP {e.code}: {msg}"[:200].replace(key, "***")
+    except Exception as e:
+        return None, f"Google Routes: {type(e).__name__}"
+    if not js.get("routes"):
+        return {}, None                                      # no road route from this centre
+    r = js["routes"][0]
+    return {"sec": float(r["duration"].rstrip("s")), "static": float(r.get("staticDuration", r["duration"]).rstrip("s")),
+            "m": float(r.get("distanceMeters", 0)), "st": st_i, "path": decode_polyline(r["polyline"]["encodedPolyline"])}, None
+
+
+def route_to_fire(lat, lon):
+    """Quickest route from the nearest Civil Defence centres to a clicked fire. Returns (route dict or None, message)."""
+    key = routes_key()
+    if not (key or os.environ.get("ROUTES_FAKE")):
+        return None, "Add GOOGLE_MAPS_KEY to the app's Secrets to show routes from the nearest Civil Defence centre."
+    cell = f"{round(lat / ROUTE_CELL)}_{round(lon / ROUTE_CELL)}"
+    store = route_store()
+    D, now = store["data"], datetime.now(timezone.utc)
+    today = now.strftime("%Y-%m-%d")
+    with store["lock"]:
+        hit = D["cells"].get(cell)
+        if hit and now - datetime.fromisoformat(hit["t"]) < timedelta(minutes=ROUTE_REUSE_MIN):
+            return hit, None
+        month = sum(v for k, v in D["used"].items() if k[:7] == today[:7])
+        if D["used"].get(today, 0) + ROUTE_CANDIDATES > ROUTE_DAILY_CAP or month + ROUTE_CANDIDATES > ROUTE_MONTHLY_CAP:
+            return (hit, "Showing an earlier lookup: ") if hit else (None, "Route lookups are paused until tomorrow to stay inside Google's free tier.")
+        D["used"][today] = D["used"].get(today, 0) + ROUTE_CANDIDATES
+    cand = [int(i) for i in np.argsort(hav_km(lat, lon, stations.latitude.values, stations.longitude.values))[:ROUTE_CANDIDATES]]
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=ROUTE_CANDIDATES) as pool:
+        out = list(pool.map(lambda i: _one_route(key, i, lat, lon), cand))
+    found = [r for r, e in out if r]
+    if not found:
+        errs = [e for r, e in out if e]
+        return None, errs[0] if errs else "Google found no road route to this fire."
+    best = min(found, key=lambda r: r["sec"])
+    best["t"] = now.isoformat(timespec="minutes")
+    with store["lock"]:
+        D["cells"][cell] = best
+        old = (now - timedelta(days=2)).isoformat()            # keep the file small
+        D["cells"] = {k: v for k, v in D["cells"].items() if v["t"] >= old}
+        D["used"] = {k: v for k, v in D["used"].items() if k >= (now - timedelta(days=40)).strftime("%Y-%m-%d")}
+        try:
+            json.dump(D, open(ROUTE_STORE, "w"))
+        except Exception:
+            pass
+    return best, None
+
+
 def ago(h):
     return f"{h * 60:.0f} min ago" if h < 1 else (f"{h:.0f} h ago" if h < 48 else f"{h / 24:.0f} days ago")
 
@@ -497,7 +631,7 @@ def age_bands(days):
     return (6, 24, "&lt; 6 h", "6–24 h", "older") if days <= 2 else (24, 168, "&lt; 24 h", "1–7 days", "older")
 
 
-def live_figure(s, no_tiles, days):
+def live_figure(s, no_tiles, days, route=None, pick=None):
     # night look: near-black base, dimmed Esri satellite, faint roads, clear place names, faint district lines, red border
     ESRI = "https://server.arcgisonline.com/ArcGIS/rest/services/"
     base = dict(source={"type": "Feature", "geometry": {"type": "Polygon",
@@ -519,19 +653,61 @@ def live_figure(s, no_tiles, days):
     size = 0.65 * (9 + 10 * np.clip(np.log1p(s.frp.fillna(1)) / 4, 0, 1.4))   # ~30% smaller dots
     hover = [f"<b>{dd}</b><br>{w.astimezone(BEIRUT):%a %d %b, %H:%M} Beirut time · {ago(a)}<br>Intensity {f:,.1f} MW · {sn}"
              for dd, w, a, f, sn in zip(s.district, s["when"], s.age_h, s.frp.fillna(0), s.sensor)]
+    hover = [h + "<br><i>Click for the route from the nearest Civil Defence centre</i>" for h in hover]
     data = [
         go.Scattermap(lat=s.latitude, lon=s.longitude, mode="markers", hoverinfo="skip",      # soft halo
                       marker=dict(size=size * 3.2, color=col, opacity=0.18)),
         go.Scattermap(lat=s.latitude, lon=s.longitude, mode="markers", text=hover, hovertemplate="%{text}<extra></extra>",
                       marker=dict(size=size, color=col, opacity=0.95))]
+    if route:                                                # clicked fire: road route from the centre, centre badge, ring on the fire
+        la, lo = zip(*route["path"])
+        sr = stations.iloc[route["st"]]
+        data += [go.Scattermap(lat=la, lon=lo, mode="lines", line=dict(width=9, color="rgba(76,110,245,0.35)"), hoverinfo="skip"),
+                 go.Scattermap(lat=la, lon=lo, mode="lines", line=dict(width=4, color="#7FA0FF"), hoverinfo="skip"),
+                 go.Scattermap(lat=[sr.latitude], lon=[sr.longitude], mode="markers+text", text=[f"🚒 {sr['name']}"],
+                               textposition="top center", textfont=dict(color="#FFFFFF", size=13),
+                               marker=dict(size=16, color="#4C6EF5"), hovertemplate=f"<b>{sr['name']}</b> Civil Defence centre<extra></extra>")]
+    if pick is not None:
+        data.append(go.Scattermap(lat=[pick[0]], lon=[pick[1]], mode="markers", hoverinfo="skip",
+                                  marker=dict(size=11, color="#FFFFFF", opacity=1)))
     fig = go.Figure(data)
-    fig.update_layout(height=470 if MOBILE else 612, margin=dict(l=0, r=0, t=0, b=0), paper_bgcolor="#0E1013", showlegend=False,
+    fig.update_layout(uirevision="live", clickmode="event+select", height=470 if MOBILE else 612, margin=dict(l=0, r=0, t=0, b=0), paper_bgcolor="#0E1013", showlegend=False,
                       font=dict(family=FONT, color="#ECE8E1"), hoverlabel=dict(bgcolor="#0E1013", font_color="#ECE8E1"),
                       images=[] if MOBILE else [dict(source=GRAD, xref='paper', yref='paper', x=0, y=1, sizex=0.5, sizey=1, sizing='stretch',
                                    layer='above', xanchor='left', yanchor='top')],
                       map=dict(style="white-bg", center={"lat": 33.84, "lon": 35.83} if MOBILE else {"lat": 33.79, "lon": 34.62},
                                zoom=7.05 if MOBILE else 6.95, layers=layers))
+    if route:                                                # zoom to the route (on desktop keep it clear of the text on the left)
+        la, lo = zip(*route["path"])
+        px_w = 700 if MOBILE else 1400                       # approximate map width in pixels
+        span = max(max(lo) - min(lo), (max(la) - min(la)) * 0.95, 0.03)
+        z = float(np.clip(np.log2(px_w * 360 * (0.5 if MOBILE else 0.25) / (512 * span)), 7, 10.5))   # route fills ~1/4 of the width
+        width_deg = px_w / (512 * 2 ** z) * 360
+        fig.update_layout(uirevision=f"route{la[-1]:.4f}{lo[-1]:.4f}", map=dict(zoom=z, center={
+            "lat": (max(la) + min(la)) / 2, "lon": (max(lo) + min(lo)) / 2 - (0 if MOBILE else 0.22 * width_deg)}))
     return fig
+
+
+def route_card(route, msg, pick):
+    """The answer to a click on a fire, under the live map."""
+    if pick is None:
+        st.caption("🚒 Click any fire on the map to see the road route from the nearest Civil Defence centre and how long the drive takes with current traffic.")
+        return
+    if not route:
+        st.caption(f"🚒 {msg}")
+        return
+    sr = stations.iloc[route["st"]]
+    asked = datetime.fromisoformat(route["t"]).astimezone(BEIRUT)
+    st.markdown(f"""<div style="background:#171A20;border:1px solid #2A2E36;border-left:4px solid #4C6EF5;border-radius:10px;padding:12px 16px;margin:4px 0 6px">
+<div style="color:#8C877F;font-size:12px">🚒 Nearest Civil Defence centre by road to this fire in {pick[2]}</div>
+<div style="color:#F2EEE8;font-size:22px;font-weight:800;margin:2px 0">{sr['name']} · {route['sec'] / 60:.0f} min drive</div>
+<div style="color:#C9C4BC;font-size:13px">{route['m'] / 1000:.1f} km by road · {route['static'] / 60:.0f} min without traffic · Google Maps traffic at {asked:%H:%M} Beirut time{f" · ☎ {sr['phone']}" if sr['phone'] else ""}</div></div>""",
+                unsafe_allow_html=True)
+    if st.button("↺ Back to all of Lebanon", key="route_reset"):
+        st.session_state["live_map_n"] = st.session_state.get("live_map_n", 0) + 1
+        st.rerun()
+    st.caption((msg or "") + "Estimated drive time for a car on today's roads, not a real response time: it leaves out dispatch and crew "
+               "preparation, and fire trucks on mountain roads are slower. Click another fire to compare.")
 
 
 def render_live():
@@ -545,6 +721,15 @@ def render_live():
         s = s[s.district.map(g_of).isin(gsel)]
     if st.session_state.get("live_note"):
         st.toast(st.session_state["live_note"], icon="⚠️")
+    s = s.reset_index(drop=True)
+    route, route_msg, pick = None, None, None
+    map_key = f"live_map{st.session_state.get('live_map_n', 0)}"   # a new key = selection cleared ("Back to all of Lebanon")
+    ev = st.session_state.get(map_key)                        # the fire the visitor clicked (if any)
+    pts = (ev.get("selection", {}) or {}).get("points", []) if ev else []
+    if pts and pts[0].get("curve_number", 9) <= 1 and pts[0].get("point_index", -1) < len(s):
+        r0 = s.iloc[pts[0]["point_index"]]
+        pick = (float(r0.latitude), float(r0.longitude), r0.district)
+        route, route_msg = route_to_fire(pick[0], pick[1])
     last24 = s[s.age_h <= 24]
     top = s.district.value_counts()
     latest = s.iloc[-1] if len(s) else None
@@ -552,8 +737,8 @@ def render_live():
     win = {1: "24 hours", 2: "48 hours", 7: "7 days", 30: "30 days"}[LIVE_DAYS]
     b1, b2, b3 = age_bands(LIVE_DAYS)[2:]
     with st.container(key="hero"):
-        _chart = lambda: st.plotly_chart(live_figure(s, bool(os.environ.get("NO_TILES")), LIVE_DAYS), width="stretch",
-                        config={"displayModeBar": False, "scrollZoom": True}, key="live_map")
+        _chart = lambda: st.plotly_chart(live_figure(s, bool(os.environ.get("NO_TILES")), LIVE_DAYS, route, pick), width="stretch",
+                        config={"displayModeBar": False, "scrollZoom": True}, key=map_key, on_select="rerun", selection_mode="points")
         hero_block(_chart, f"""<div class="hero-ov">
 <div class="tag live"><span class="dot"></span>LIVE · NASA FIRMS · updated {now.astimezone(BEIRUT):%H:%M} Beirut time</div>
 <div class="h1">Lebanon Is<br><span class="hot">Burning</span></div>
@@ -571,6 +756,7 @@ def render_live():
     st.caption(f"Live mode shows every VIIRS fire detection over Lebanon from the last {win} (Suomi-NPP, NOAA-20 and NOAA-21 satellites). "
                "NASA publishes detections about 3 hours after each satellite pass, so 'live' means within a few hours. "
                "Data refreshes every 10 minutes. Some hot spots can be industrial heat or agricultural burning.")
+    route_card(route, route_msg, pick)
 
 
 if live:
@@ -627,7 +813,7 @@ with tab_where:
         st.caption("Lighter = fewer fires, darker = more fires (all detections matching the filters above). Basemap © OpenStreetMap contributors © CARTO.")
     with b:
         top = by_dist.head(10).iloc[::-1]
-        rank = list(by_dist.head(3).index)
+        rank = list(by_dist.head(2).index)
         cols = [FIRE if n in rank else "#C8C6BE" for n in top.index]
         bar = go.Figure(go.Bar(x=top.values, y=top.index, orientation="h", marker_color=cols,
                                text=[f"{v:,}" for v in top.values], textposition="outside",
@@ -756,7 +942,7 @@ with tab_cost:
         st.plotly_chart(dm, width="stretch")
     with c2:
         top = byd.head(10)[::-1]
-        first3 = set(byd.index[:3])
+        first3 = set(byd.index[:1])
         hb = go.Figure(go.Bar(x=top.values, y=top.index, orientation="h",
                               marker_color=[GREEN if n in first3 else "#C8C6BE" for n in top.index],
                               text=[f"{v:,.0f} ha" for v in top.values], textposition="outside",

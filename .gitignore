@@ -1,0 +1,3 @@
+.streamlit/secrets.toml
+.route_cache.json
+__pycache__/
