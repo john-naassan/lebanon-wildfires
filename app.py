@@ -137,6 +137,7 @@ div[data-testid="stMetric"]{background:#171A20;border:1px solid #2A2E36;border-l
 .rpanel .rn{color:#F2EEE8;font-size:19px;font-weight:800;margin:6px 0 0}
 .rpanel .rt{color:#7FA0FF;font-size:38px;font-weight:900;line-height:1.1;margin:2px 0 6px}.rpanel .rt small{font-size:15px;color:#C9C4BC;font-weight:600}
 .rpanel .rrow{display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;border-top:1px solid #2A2E36;color:#B9B3AA}.rpanel .rrow b{color:#F2EEE8}
+.rpanel .rkey{display:flex;gap:12px;font-size:11px;color:#B9B3AA;padding-top:7px;border-top:1px solid #2A2E36}.rpanel .rkey i{display:inline-block;width:16px;height:4px;border-radius:2px;margin-right:5px;vertical-align:middle}
 .rpanel .rs{color:#8C877F;font-size:11px;line-height:1.35;margin-top:8px}
 .legend .bar{height:7.2px;border-radius:3.6px;background:linear-gradient(90deg,#2840ff,#00c8ff,#00d25a,#ffe000,#ff8c00,#e61414);margin:6.3px 0 2.7px}
 .stTabs [data-baseweb="tab-list"]{gap:9px;margin-top:12.6px}
@@ -513,7 +514,7 @@ def fetch_live(days):
 ROUTES_URL = "https://routes.googleapis.com/directions/v2:computeRoutes"
 ROUTE_CELL = 0.01          # degrees (~1 km): clicks on fires in the same cell reuse one answer
 ROUTE_CANDIDATES = 2       # nearest centres (straight line) to try; the quickest by road is one of the 2 nearest ~93% of the time
-ROUTE_REUSE_MIN = 30       # minutes before the same spot is asked again (traffic changes)
+ROUTE_REUSE_MIN = 10       # minutes before the same spot is asked again (live traffic changes)
 ROUTE_DAILY_CAP = 100      # Google requests per UTC day
 ROUTE_MONTHLY_CAP = 3000   # Google requests per calendar month: well below the 5,000 free
 ROUTE_STORE = APP_DIR / ".route_cache.json"
@@ -573,12 +574,14 @@ def _one_route(key, st_i, lat, lon):
     if os.environ.get("ROUTES_FAKE"):                       # offline preview: fake answer, no API call
         km = float(hav_km(lat, lon, slat, slon)) * 1.35
         return {"sec": km * 95 + 120, "static": km * 80 + 90, "m": km * 1000, "st": st_i,
-                "path": [(slat, slon), ((slat + lat) / 2 + 0.01, (slon + lon) / 2), (lat, lon)]}, None
+                "path": [(slat, slon), ((slat + lat) / 2 + 0.01, (slon + lon) / 2), (lat, lon)], "jam": [[0, 1, "SLOW"], [1, 2, "NORMAL"]]}, None
     wp = lambda a, b: {"location": {"latLng": {"latitude": a, "longitude": b}}}
-    body = {"origin": wp(slat, slon), "destination": wp(float(lat), float(lon)), "travelMode": "DRIVE", "routingPreference": "TRAFFIC_AWARE"}
+    body = {"origin": wp(slat, slon), "destination": wp(float(lat), float(lon)), "travelMode": "DRIVE",
+            "routingPreference": "TRAFFIC_AWARE_OPTIMAL",            # Google's most accurate live-traffic routing (same as the Maps app)
+            "extraComputations": ["TRAFFIC_ON_POLYLINE"]}            # traffic speed along each stretch of the route
     req = urllib.request.Request(ROUTES_URL, data=json.dumps(body).encode(), method="POST", headers={
         "Content-Type": "application/json", "X-Goog-Api-Key": key,
-        "X-Goog-FieldMask": "routes.duration,routes.staticDuration,routes.distanceMeters,routes.polyline.encodedPolyline"})
+        "X-Goog-FieldMask": "routes.duration,routes.staticDuration,routes.distanceMeters,routes.polyline.encodedPolyline,routes.travelAdvisory.speedReadingIntervals"})
     try:
         with urllib.request.urlopen(req, timeout=20) as r:
             js = json.loads(r.read().decode("utf-8"))
@@ -594,7 +597,9 @@ def _one_route(key, st_i, lat, lon):
         return {}, None                                      # no road route from this centre
     r = js["routes"][0]
     return {"sec": float(r["duration"].rstrip("s")), "static": float(r.get("staticDuration", r["duration"]).rstrip("s")),
-            "m": float(r.get("distanceMeters", 0)), "st": st_i, "path": decode_polyline(r["polyline"]["encodedPolyline"])}, None
+            "m": float(r.get("distanceMeters", 0)), "st": st_i, "path": decode_polyline(r["polyline"]["encodedPolyline"]),
+            "jam": [[iv.get("startPolylinePointIndex", 0), iv.get("endPolylinePointIndex", 0), iv.get("speed", "NORMAL")]
+                    for iv in r.get("travelAdvisory", {}).get("speedReadingIntervals", [])]}, None
 
 
 def route_to_fire(lat, lon):
@@ -676,8 +681,15 @@ def live_figure(s, no_tiles, days, route=None, pick=None):
     if route:                                                # clicked fire: road route from the centre, centre badge, ring on the fire
         la, lo = zip(*route["path"])
         sr = stations.iloc[route["st"]]
-        data += [go.Scattermap(lat=la, lon=lo, mode="lines", line=dict(width=9, color="rgba(76,110,245,0.35)"), hoverinfo="skip"),
-                 go.Scattermap(lat=la, lon=lo, mode="lines", line=dict(width=4, color="#7FA0FF"), hoverinfo="skip"),
+        data.append(go.Scattermap(lat=la, lon=lo, mode="lines", line=dict(width=10, color="rgba(10,12,16,0.75)"), hoverinfo="skip"))
+        segs = {"NORMAL": [], "SLOW": [], "TRAFFIC_JAM": []}        # live traffic along the route, coloured like Google Maps
+        for a, b, sp in (route.get("jam") or [[0, len(la) - 1, "NORMAL"]]):
+            segs.setdefault(sp, segs["NORMAL"]).extend(list(zip(la[a:b + 1], lo[a:b + 1])) + [(None, None)])
+        for sp, col in (("NORMAL", "#2ECC71"), ("SLOW", "#FFA200"), ("TRAFFIC_JAM", "#E5302F")):
+            if segs[sp]:
+                sa, so = zip(*segs[sp])
+                data.append(go.Scattermap(lat=sa, lon=so, mode="lines", line=dict(width=5, color=col), hoverinfo="skip"))
+        data += [
                  go.Scattermap(lat=[sr.latitude], lon=[sr.longitude], mode="markers+text", text=[f"🚒 {sr['name']}"],
                                textposition="top center", textfont=dict(color="#FFFFFF", size=13),
                                marker=dict(size=16, color="#4C6EF5"), hovertemplate=f"<b>{sr['name']}</b> Civil Defence centre<extra></extra>")]
@@ -707,18 +719,27 @@ def route_panel(route, msg, pick):
     if pick is None:
         return ('<div class="rpanel hint"><div class="rl">🚒 Route to a fire</div>'
                 '<div class="rs">Click any fire on the map to see the road route from the nearest Civil Defence centre '
-                'and how long the drive takes with current traffic.</div></div>')
+                'and how long the drive takes in live traffic right now.</div></div>')
     if not route:
         return f'<div class="rpanel"><div class="rl">🚒 Fire in {pick[2]}</div><div class="rs">{msg}</div></div>'
     sr = stations.iloc[route["st"]]
     asked = datetime.fromisoformat(route["t"]).astimezone(BEIRUT)
     phone = f'<div class="rrow"><span>Phone</span><b>☎ {sr["phone"]}</b></div>' if sr["phone"] else ""
+    share = {"SLOW": 0, "TRAFFIC_JAM": 0}                    # share of the route (in polyline points) that is slow or jammed
+    for a, b, sp in route.get("jam") or []:
+        if sp in share:
+            share[sp] += (b - a) / max(1, len(route["path"]) - 1)
+    delay = max(0, round((route["sec"] - route["static"]) / 60))
+    level = (("Heavy", "#E5302F") if share["TRAFFIC_JAM"] > 0.15 else ("Slow", "#FFA200") if share["SLOW"] + share["TRAFFIC_JAM"] > 0.15
+             else ("Mostly flowing", "#2ECC71") if share["SLOW"] + share["TRAFFIC_JAM"] > 0 else ("Flowing", "#2ECC71"))
+    key = ('<div class="rkey"><span><i style="background:#2ECC71"></i>Flowing</span><span><i style="background:#FFA200"></i>Slow</span>'
+           '<span><i style="background:#E5302F"></i>Jammed</span></div>')
     return f"""<div class="rpanel"><div class="rl">🚒 Nearest Civil Defence centre by road · fire in {pick[2]}</div>
 <div class="rn">{sr['name']}</div>
-<div class="rt">{route['sec'] / 60:.0f}<small> min drive</small></div>
-<div class="rrow"><span>Without traffic</span><b>{route['static'] / 60:.0f} min</b></div>
-<div class="rrow"><span>Distance by road</span><b>{route['m'] / 1000:.1f} km</b></div>{phone}
-<div class="rs">{msg or ""}Google Maps traffic at {asked:%H:%M} Beirut time. A car's drive time, not a real response time: it leaves out
+<div class="rt">{route['sec'] / 60:.0f}<small> min drive in live traffic</small></div>
+<div class="rrow"><span>Traffic on the route now</span><b style="color:{level[1]}">{level[0]}{f" · +{delay} min" if delay else ""}</b></div>
+<div class="rrow"><span>Distance by road</span><b>{route['m'] / 1000:.1f} km</b></div>{phone}{key}
+<div class="rs">{msg or ""}Live traffic from Google Maps at {asked:%H:%M} Beirut time. A car's drive time, not a real response time: it leaves out
 dispatch and crew preparation, and fire trucks on mountain roads are slower.</div></div>"""
 
 
