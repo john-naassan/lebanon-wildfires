@@ -118,7 +118,7 @@ div[data-testid="stMetric"]{background:#171A20;border:1px solid #2A2E36;border-l
 .st-key-hero .updatemenu-button rect{rx:16.2px;ry:16.2px}
 .st-key-hero .updatemenu-button text{font-weight:700 !important}
 /* filter chips floating over the top-right of the map */
-.st-key-filters{position:relative;z-index:30;width:min(702px,60vw);margin-left:auto;top:12.6px;margin-bottom:-66.6px}
+.st-key-filters{position:relative;z-index:30;width:min(860px,70vw);margin-left:auto;top:12.6px;margin-bottom:-66.6px}
 [data-testid="stMainBlockContainer"]{padding-top:0 !important}
 .st-key-filters [data-testid="stHorizontalBlock"]{gap:9px}
 /* overlay text on the map */
@@ -146,6 +146,7 @@ div[data-testid="stMetric"]{background:#171A20;border:1px solid #2A2E36;border-l
 .stTabs [data-baseweb="tab"][aria-selected="true"] p{color:#111 !important;font-weight:700}
 .stTabs [data-baseweb="tab-highlight"],.stTabs [data-baseweb="tab-border"]{display:none}
 .st-key-livechip{background:rgba(23,26,32,.92);border:1px solid #2A2E36;border-radius:7.2px;padding:6.3px 10.8px 2.7px;height:37.8px}
+.st-key-bellchip [data-testid="stPopover"] button[kind="primary"],.st-key-bellchip [data-testid="stPopover"] button[data-testid$="Primary"]{border:1px solid rgba(255,77,77,.75) !important;color:#ffb3b3 !important;font-weight:700}
 .st-key-livechip label p{font-weight:800;letter-spacing:1px;color:#ff4d4d !important}
 .hero-ov .tag.live{background:rgba(230,20,20,.18);border-color:rgba(255,77,77,.6);color:#ffb3b3}
 .hero-ov .tag .dot{display:inline-block;width:8.1px;height:8.1px;border-radius:50%;background:#ff3b3b;margin-right:7.2px;box-shadow:0 0 0 0 rgba(255,59,59,.7);animation:pulse 1.6s infinite}
@@ -178,7 +179,7 @@ if MOBILE:
 # ---------- filters: slim chips floating over the map ----------
 govs = sorted(fires.governorate.dropna().unique())
 with st.container(key="filters"):
-    c1, c2, c3, c4 = st.columns([1, 1.25, 1, 0.72])
+    c1, c2, c3, c4, c5 = st.columns([1, 1.25, 1, 0.72, 0.95])
     _y = st.session_state.get("years", (2012, 2025))
     with c1.popover(f"📅  {_y[0]} – {_y[1]}", use_container_width=True):
         yr = st.slider("Years", 2012, 2025, (2012, 2025), key="years")
@@ -191,6 +192,7 @@ with st.container(key="filters"):
         show_st2 = st.toggle("Show fire stations", value=False, key="st_sat")
     with c4.container(key="livechip"):
         live = st.toggle("LIVE", value=False, key="live", help="Show NASA fire detections from the last 30 days")
+    bell_slot = c5.container(key="bellchip")                 # alerts: fires in the last 24 h (filled further down)
 
 d = fires[fires.year.between(*yr) & fires.governorate.isin(gsel or govs)]
 if d.empty:
@@ -606,7 +608,7 @@ def route_to_fire(lat, lon):
     """Quickest route from the nearest Civil Defence centres to a clicked fire. Returns (route dict or None, message)."""
     key = routes_key()
     if not (key or os.environ.get("ROUTES_FAKE")):
-        return None, "Add GOOGLE_MAPS_KEY to the app's Secrets to show routes from the nearest Civil Defence centre."
+        return None, "Add GOOGLE_MAPS_KEY to the app's Secrets to show routes from the nearest Civil Defence station."
     cell = f"{round(lat / ROUTE_CELL)}_{round(lon / ROUTE_CELL)}"
     store = route_store()
     D, now = store["data"], datetime.now(timezone.utc)
@@ -672,7 +674,7 @@ def live_figure(s, no_tiles, days, route=None, pick=None):
     size = 0.65 * (9 + 10 * np.clip(np.log1p(s.frp.fillna(1)) / 4, 0, 1.4))   # ~30% smaller dots
     hover = [f"<b>{dd}</b><br>{w.astimezone(BEIRUT):%a %d %b, %H:%M} Beirut time · {ago(a)}<br>Intensity {f:,.1f} MW · {sn}"
              for dd, w, a, f, sn in zip(s.district, s["when"], s.age_h, s.frp.fillna(0), s.sensor)]
-    hover = [h + "<br><i>Click for the route from the nearest Civil Defence centre</i>" for h in hover]
+    hover = [h + "<br><i>Click for the route from the nearest Civil Defence station</i>" for h in hover]
     data = [
         go.Scattermap(lat=s.latitude, lon=s.longitude, mode="markers", hoverinfo="skip",      # soft halo
                       marker=dict(size=size * 3.2, color=col, opacity=0.18)),
@@ -692,7 +694,7 @@ def live_figure(s, no_tiles, days, route=None, pick=None):
         data += [
                  go.Scattermap(lat=[sr.latitude], lon=[sr.longitude], mode="markers+text", text=[f"🚒 {sr['name']}"],
                                textposition="top center", textfont=dict(color="#FFFFFF", size=13),
-                               marker=dict(size=16, color="#4C6EF5"), hovertemplate=f"<b>{sr['name']}</b> Civil Defence centre<extra></extra>")]
+                               marker=dict(size=16, color="#4C6EF5"), hovertemplate=f"<b>{sr['name']}</b> Civil Defence station<extra></extra>")]
     if pick is not None:
         data.append(go.Scattermap(lat=[pick[0]], lon=[pick[1]], mode="markers", hoverinfo="skip",
                                   marker=dict(size=11, color="#FFFFFF", opacity=1)))
@@ -718,7 +720,7 @@ def route_panel(route, msg, pick):
     """Side panel on the live map with the answer to a click on a fire (under the map on phones)."""
     if pick is None:
         return ('<div class="rpanel hint"><div class="rl">🚒 Route to a fire</div>'
-                '<div class="rs">Click any fire on the map to see the road route from the nearest Civil Defence centre '
+                '<div class="rs">Click any fire on the map to see the road route from the nearest Civil Defence station '
                 'and how long the drive takes in live traffic right now.</div></div>')
     if not route:
         return f'<div class="rpanel"><div class="rl">🚒 Fire in {pick[2]}</div><div class="rs">{msg}</div></div>'
@@ -734,7 +736,7 @@ def route_panel(route, msg, pick):
              else ("Mostly flowing", "#2ECC71") if share["SLOW"] + share["TRAFFIC_JAM"] > 0 else ("Flowing", "#2ECC71"))
     key = ('<div class="rkey"><span><i style="background:#2ECC71"></i>Flowing</span><span><i style="background:#FFA200"></i>Slow</span>'
            '<span><i style="background:#E5302F"></i>Jammed</span></div>')
-    return f"""<div class="rpanel"><div class="rl">🚒 Nearest Civil Defence centre by road · fire in {pick[2]}</div>
+    return f"""<div class="rpanel"><div class="rl">🚒 Nearest Civil Defence station by road · fire in {pick[2]}</div>
 <div class="rn">{sr['name']}</div>
 <div class="rt">{route['sec'] / 60:.0f}<small> min drive in live traffic</small></div>
 <div class="rrow"><span>Traffic on the route now</span><b style="color:{level[1]}">{level[0]}{f" · +{delay} min" if delay else ""}</b></div>
@@ -746,6 +748,7 @@ dispatch and crew preparation, and fire trucks on mountain roads are slower.</di
 def route_reset(pick):
     if pick is not None and st.button("↺ Back to all of Lebanon", key="route_reset"):
         st.session_state["live_map_n"] = st.session_state.get("live_map_n", 0) + 1
+        st.session_state.pop("pick_req", None)
         st.rerun()
 
 
@@ -768,6 +771,10 @@ def render_live():
     if pts and pts[0].get("curve_number", 9) <= 1 and pts[0].get("point_index", -1) < len(s):
         r0 = s.iloc[pts[0]["point_index"]]
         pick = (float(r0.latitude), float(r0.longitude), r0.district)
+        st.session_state.pop("pick_req", None)                 # a click on the map replaces an alert choice
+    elif st.session_state.get("pick_req"):                     # fire chosen from the alerts list
+        pick = tuple(st.session_state["pick_req"])
+    if pick is not None:
         route, route_msg = route_to_fire(pick[0], pick[1])
     last24 = s[s.age_h <= 24]
     top = s.district.value_counts()
@@ -795,9 +802,60 @@ def render_live():
 </div>""")
     st.caption(f"Live mode shows every VIIRS fire detection over Lebanon from the last {win} (Suomi-NPP, NOAA-20 and NOAA-21 satellites). "
                "NASA publishes detections about 3 hours after each satellite pass, so 'live' means within a few hours. "
-               "Data refreshes every 10 minutes. Click a fire detection to see which Civil Defense station has the shortest estimated drive time in current traffic.")
+               "Data refreshes every 10 minutes. Click a fire detection to see which Civil Defence station has the shortest estimated drive time in current traffic.")
     route_reset(pick)
 
+
+def open_alert(lat, lon, district):
+    """Alert clicked: switch to LIVE and show the route to that fire."""
+    st.session_state["live"] = True
+    st.session_state["pick_req"] = (lat, lon, district)
+    st.session_state["live_map_n"] = st.session_state.get("live_map_n", 0) + 1   # clear any earlier map selection
+    st.session_state["bell_pop"] = False                                          # close the alerts list
+
+
+def alerts_bell():
+    """Notification button: fires NASA detected in the last 24 hours, each one opening its route in LIVE."""
+    s, _now = fetch_live(LIVE_DAYS)
+    if s is None:
+        with st.popover("🔔 Alerts", use_container_width=True):
+            st.caption("Recent fires can't be loaded right now.")
+        return
+    recent = s[s.age_h <= 24].copy()
+    if gsel:
+        g_of = {ft["properties"]["district"]: ft["properties"]["governorate"] for ft in geo["features"]}
+        recent = recent[recent.district.map(g_of).isin(gsel)]
+    if recent.empty:
+        with st.popover("🔔 0 fires · 24 h", use_container_width=True):
+            st.markdown("**No fires detected in the last 24 hours**" + (" in the selected governorates." if gsel else " in Lebanon."))
+            st.caption("NASA publishes detections about 3 hours after each satellite pass.")
+        return
+    recent["cell"] = (recent.latitude / ROUTE_CELL).round().astype(int).astype(str) + "_" + (recent.longitude / ROUTE_CELL).round().astype(int).astype(str)
+    g = recent.groupby("cell").agg(lat=("latitude", "mean"), lon=("longitude", "mean"), district=("district", "first"),
+                                   n=("latitude", "size"), age=("age_h", "min"), frp=("frp", "max")).sort_values("age")
+    with st.popover(f"🔔 {len(recent)} fire{'s' if len(recent) != 1 else ''} · 24 h", use_container_width=True, key="bell_pop", on_change="rerun",
+                    type="primary"):                         # primary = red outline (see CSS) when there are fires
+        st.markdown(f"**{len(recent)} fire detection{'s' if len(recent) != 1 else ''} in the last 24 hours**"
+                    + (" in the selected governorates" if gsel else " in Lebanon"))
+        st.caption("Tap “Show route” to open LIVE and see how long the drive from the nearest Civil Defence station would take. "
+                   "In an emergency, call 125.")
+        for c, row in g.head(12).iterrows():
+            km = hav_km(row.lat, row.lon, stations.latitude.values, stations.longitude.values)
+            near = stations.iloc[int(np.argmin(km))]
+            a, b = st.columns([3, 1.3], vertical_alignment="center")
+            a.markdown(f"**{row.district}** · {ago(row.age)}"
+                       + (f" · {int(row.n)} detections" if row.n > 1 else "")
+                       + f"<br><span style='color:#9a948b;font-size:12.5px'>Nearest station: {near['name']} "
+                       f"({float(km.min()):.1f} km straight line){' · ☎ ' + near['phone'] if near['phone'] else ''}</span>",
+                       unsafe_allow_html=True)
+            b.button("Show route", key=f"alert_{c}", on_click=open_alert, args=(float(row.lat), float(row.lon), row.district),
+                     use_container_width=True)
+        if len(g) > 12:
+            st.caption(f"…and {len(g) - 12} more places. Switch on LIVE to see them all on the map.")
+
+
+with bell_slot:
+    alerts_bell()
 
 if live:
     render_live()
@@ -1001,7 +1059,7 @@ with tab_data:
         "National forest loss to fire, by year": ("forest_loss_national", "Central estimate (codes 4 + 3), hectares per year, 2001–2025."),
         "Forest loss to fire, by district and year": ("forest_loss_districts", "Central estimate aggregated from subdivisions to districts; conflict-area rows excluded."),
         "Forest loss estimates (lower / central / upper)": ("forest_loss_estimates", "National totals 2001–2025 for the three certainty levels."),
-        "Fire stations (Civil Defence)": ("fire_stations", "205 Lebanese Civil Defence branches with district, phone and location, shown on the main map (⚙ Map options → Show fire stations)."),
+        "Fire stations (Civil Defence)": ("fire_stations", "205 Lebanese Civil Defence stations with district, phone and location, shown on the main map (⚙ Map options → Show fire stations)."),
     }
     f1, f2 = st.columns([2, 1])
     ds = f1.selectbox("Dataset", list(DATASETS), key="data_ds")
